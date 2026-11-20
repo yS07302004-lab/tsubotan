@@ -6,7 +6,7 @@
     "kotsudo": null,
     "tags": ["井木穴"],
     "etymology": { "text": "「湧」は湧き出る、「泉」はいずみ。腎経の気が足の裏から泉のように湧き出る所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.1097, -0.0699, 0.137], "L": [0.1097, -0.0699, 0.137]}, "positionStatus": "draft"
+    "positions": {"R": [-0.1081, -0.07, 0.1364], "L": [0.1081, -0.0699, 0.1364]}, "positionStatus": "draft"
   },
   {
     "id": "KI2", "name": "然谷", "reading": "ねんこく", "meridian": "KI",
@@ -15,7 +15,7 @@
     "kotsudo": null,
     "tags": ["滎火穴"],
     "etymology": { "text": "「然」は然骨（舟状骨の古い呼び名）、「谷」はくぼみ。然骨の下のくぼみにある穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0491, -0.0439, 0.108], "L": [0.048, -0.0445, 0.108]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0488, -0.0432, 0.1078], "L": [0.0477, -0.0436, 0.1081]}, "positionStatus": "draft"
   },
   {
     "id": "KI3", "name": "太渓", "reading": "たいけい", "meridian": "KI",
@@ -24,7 +24,7 @@
     "kotsudo": null,
     "tags": ["原穴", "兪土穴"],
     "etymology": { "text": "「太」は大きい、「渓」は谷川。内果とアキレス腱の間の大きなくぼみを谷川にたとえたという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0358, -0.004, 0.062], "L": [0.0346, -0.004, 0.062]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0359, -0.0043, 0.0623], "L": [0.0347, -0.0044, 0.0625]}, "positionStatus": "draft"
   },
   {
     "id": "KI4", "name": "大鍾", "reading": "だいしょう", "meridian": "KI",
@@ -33,7 +33,7 @@
     "kotsudo": null,
     "tags": ["絡穴"],
     "etymology": { "text": "「鍾」は踵（かかと）に通じ、踵の大きな所にある穴という説がある。釣り鐘（鍾）の形にたとえたとする説もある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0374, -0.0158, 0.047], "L": [0.0362, -0.0158, 0.047]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0374, -0.0161, 0.0473], "L": [0.0362, -0.0161, 0.047]}, "positionStatus": "draft"
   },
   {
     "id": "KI5", "name": "水泉", "reading": "すいせん", "meridian": "KI",
@@ -42,7 +42,7 @@
     "kotsudo": null,
     "tags": ["郄穴"],
     "etymology": { "text": "「水」は腎（五行で水）、「泉」はいずみ。腎の気が泉のように深く集まる所（郄穴）という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0373, -0.0277, 0.06], "L": [0.0359, -0.0277, 0.06]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0374, -0.0279, 0.0603], "L": [0.0361, -0.028, 0.0606]}, "positionStatus": "draft"
   },
   {
     "id": "KI6", "name": "照海", "reading": "しょうかい", "meridian": "KI",
@@ -51,7 +51,7 @@
     "kotsudo": null,
     "tags": ["八脈交会穴（陰蹻脈）"],
     "etymology": { "text": "「照」は照らす、「海」は多くのものが集まる所。陰蹻脈が起こり、気が海のように集まる所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0428, -0.0277, 0.081], "L": [0.0415, -0.0277, 0.081]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0436, -0.0279, 0.0847], "L": [0.0423, -0.0279, 0.0848]}, "positionStatus": "draft"
   },
   {
     "id": "KI7", "name": "復溜", "reading": "ふくりゅう", "meridian": "KI",
@@ -60,7 +60,7 @@
     "kotsudo": "lower_leg_kidney",
     "tags": ["経金穴"],
     "etymology": { "text": "「復」は再び、「溜」は流れる。足首で留まった経気が再び流れ出す所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0425, 0.0444, 0.053], "L": [0.0412, 0.0444, 0.053]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0426, 0.0456, 0.053], "L": [0.0413, 0.0457, 0.053]}, "positionStatus": "draft"
   },
   {
     "id": "KI8", "name": "交信", "reading": "こうしん", "meridian": "KI",
@@ -69,7 +69,7 @@
     "kotsudo": "lower_leg_kidney",
     "tags": ["郄穴（陰蹻脈）"],
     "etymology": { "text": "「交」は交わる、「信」は五常で脾（土）に当たる。腎経が脾経（三陰交）と交わる方へ向かう所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0442, 0.0444, 0.0656], "L": [0.0429, 0.0444, 0.0656]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0443, 0.0456, 0.0656], "L": [0.043, 0.0457, 0.0659]}, "positionStatus": "draft"
   },
   {
     "id": "KI9", "name": "築賓", "reading": "ちくひん", "meridian": "KI",
@@ -78,7 +78,7 @@
     "kotsudo": "lower_leg_kidney",
     "tags": ["郄穴（陰維脈）"],
     "etymology": { "text": "「築」は堅く築く、「賓」は臏（ひざ・すね）に通じ、ふくらはぎの筋が盛り上がる所という説がある。諸説ある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0409, 0.1188, 0.062], "L": [0.0395, 0.1188, 0.062]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0407, 0.1205, 0.062], "L": [0.0394, 0.1204, 0.062]}, "positionStatus": "draft"
   },
   {
     "id": "KI10", "name": "陰谷", "reading": "いんこく", "meridian": "KI",
@@ -87,7 +87,7 @@
     "kotsudo": null,
     "tags": ["合水穴"],
     "etymology": { "text": "「陰」は下肢の内側（陰側）、「谷」はくぼみ。膝の裏の内側で、筋と腱の間のくぼみにあるという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.036, 0.37, 0.0365], "L": [0.036, 0.37, 0.0341]}, "positionStatus": "draft"
+    "positions": {"R": [-0.036, 0.37, 0.0365], "L": [0.0351, 0.3698, 0.0361]}, "positionStatus": "draft"
   },
   {
     "id": "KI11", "name": "横骨", "reading": "おうこつ", "meridian": "KI",
@@ -96,7 +96,7 @@
     "kotsudo": "abdomen_lower",
     "tags": [],
     "etymology": { "text": "恥骨の古い呼び名「横骨」の上縁にあることによるという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.806, 0.1779], "L": [0.0136, 0.806, 0.1777]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.8037, 0.177], "L": [0.0136, 0.8037, 0.177]}, "positionStatus": "draft"
   },
   {
     "id": "KI12", "name": "大赫", "reading": "だいかく", "meridian": "KI",
@@ -105,7 +105,7 @@
     "kotsudo": "abdomen_lower",
     "tags": [],
     "etymology": { "text": "「大」は大きい、「赫」は盛ん。下腹部の陽気が盛んな所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.8422, 0.1891], "L": [0.0136, 0.8422, 0.1888]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.8336, 0.1872], "L": [0.0135, 0.8337, 0.1868]}, "positionStatus": "draft"
   },
   {
     "id": "KI13", "name": "気穴", "reading": "きけつ", "meridian": "KI",
@@ -114,7 +114,7 @@
     "kotsudo": "abdomen_lower",
     "tags": [],
     "etymology": { "text": "「気」は腎の精気、「穴」はあな。腎の精気が出入りする所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.8722, 0.195], "L": [0.0136, 0.8722, 0.1949]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.8648, 0.1938], "L": [0.0136, 0.8648, 0.1936]}, "positionStatus": "draft"
   },
   {
     "id": "KI14", "name": "四満", "reading": "しまん", "meridian": "KI",
@@ -123,7 +123,7 @@
     "kotsudo": "abdomen_lower",
     "tags": [],
     "etymology": { "text": "「四」は腹部の腎経で4番目、「満」は満ちる。腹の張り（満）に用いる腹部第4の穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.9021, 0.2014], "L": [0.0136, 0.9021, 0.2014]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.8961, 0.2004], "L": [0.0136, 0.8961, 0.2003]}, "positionStatus": "draft"
   },
   {
     "id": "KI15", "name": "中注", "reading": "ちゅうちゅう", "meridian": "KI",
@@ -132,7 +132,7 @@
     "kotsudo": "abdomen_lower",
     "tags": [],
     "etymology": { "text": "「中」は内部、「注」はそそぐ。腎経の気が腹の中へ注ぐ所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.9322, 0.2035], "L": [0.0136, 0.9322, 0.2036]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.9279, 0.2034], "L": [0.0136, 0.9278, 0.2034]}, "positionStatus": "draft"
   },
   {
     "id": "KI16", "name": "肓兪", "reading": "こうゆ", "meridian": "KI",
@@ -141,7 +141,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「肓」は臍の奥の膜（肓膜）、「兪」は気の出入りする所。臍の傍らで肓に通じる穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 0.958, 0.2019], "L": [0.0136, 0.958, 0.2023]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 0.958, 0.2019], "L": [0.0135, 0.958, 0.2023]}, "positionStatus": "draft"
   },
   {
     "id": "KI17", "name": "商曲", "reading": "しょうきょく", "meridian": "KI",
@@ -150,7 +150,7 @@
     "kotsudo": "abdomen_upper",
     "tags": [],
     "etymology": { "text": "「商」は五音で金（大腸）、「曲」は曲がる。大腸の曲がる所の上にあるという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 1.0106, 0.2108], "L": [0.0136, 1.0106, 0.2109]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 1.0119, 0.211], "L": [0.0136, 1.0119, 0.2111]}, "positionStatus": "draft"
   },
   {
     "id": "KI18", "name": "石関", "reading": "せきかん", "meridian": "KI",
@@ -159,7 +159,7 @@
     "kotsudo": "abdomen_upper",
     "tags": [],
     "etymology": { "text": "「石」は硬いもの、「関」は関所。腹部の硬いしこりに関わる要所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 1.0383, 0.2137], "L": [0.0136, 1.0383, 0.2138]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 1.0398, 0.2139], "L": [0.0136, 1.0398, 0.214]}, "positionStatus": "draft"
   },
   {
     "id": "KI19", "name": "陰都", "reading": "いんと", "meridian": "KI",
@@ -168,7 +168,7 @@
     "kotsudo": "abdomen_upper",
     "tags": [],
     "etymology": { "text": "「陰」は腹部（陰）、「都」は集まる所。腹部の陰気が集まる所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 1.0662, 0.2169], "L": [0.0136, 1.0662, 0.2172]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 1.0678, 0.2171], "L": [0.0136, 1.0678, 0.2173]}, "positionStatus": "draft"
   },
   {
     "id": "KI20", "name": "腹通谷", "reading": "はらのつうこく", "meridian": "KI",
@@ -177,7 +177,7 @@
     "kotsudo": "abdomen_upper",
     "tags": [],
     "etymology": { "text": "「通谷」は通じる谷。膀胱経の足通谷と区別するために「腹」を付けたという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 1.0941, 0.2172], "L": [0.0136, 1.0941, 0.2175]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 1.0959, 0.2171], "L": [0.0136, 1.0959, 0.2174]}, "positionStatus": "draft"
   },
   {
     "id": "KI21", "name": "幽門", "reading": "ゆうもん", "meridian": "KI",
@@ -186,7 +186,7 @@
     "kotsudo": "abdomen_upper",
     "tags": [],
     "etymology": { "text": "「幽」は奥深い、「門」は出入り口。胃の出口（幽門）に近い所にあるという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0136, 1.1219, 0.2183], "L": [0.0136, 1.1219, 0.2185]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0136, 1.124, 0.2185], "L": [0.0136, 1.124, 0.2186]}, "positionStatus": "draft"
   },
   {
     "id": "KI22", "name": "歩廊", "reading": "ほろう", "meridian": "KI",
@@ -195,7 +195,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「歩」は歩む、「廊」は廊下。肋骨の間を廊下にたとえ、経気が胸を一段ずつ上る所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.1681, 0.2199], "L": [0.0545, 1.1681, 0.2199]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.1692, 0.2204], "L": [0.0545, 1.1692, 0.2204]}, "positionStatus": "draft"
   },
   {
     "id": "KI23", "name": "神封", "reading": "しんぽう", "meridian": "KI",
@@ -204,7 +204,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「神」は心神、「封」は領域。心の近くの領域にある穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.2017, 0.2248], "L": [0.0545, 1.2017, 0.2248]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.2023, 0.2247], "L": [0.0545, 1.2022, 0.2247]}, "positionStatus": "draft"
   },
   {
     "id": "KI24", "name": "霊墟", "reading": "れいきょ", "meridian": "KI",
@@ -213,7 +213,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「霊」は心の霊気、「墟」は丘・所。心の気がある所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.2358, 0.2159], "L": [0.0545, 1.2358, 0.2158]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.2353, 0.2161], "L": [0.0545, 1.2353, 0.216]}, "positionStatus": "draft"
   },
   {
     "id": "KI25", "name": "神蔵", "reading": "しんぞう", "meridian": "KI",
@@ -222,7 +222,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「神」は心神、「蔵」はしまう。心神をしまう所の近くにある穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.2687, 0.2009], "L": [0.0545, 1.2687, 0.2008]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.2681, 0.2013], "L": [0.0545, 1.268, 0.2012]}, "positionStatus": "draft"
   },
   {
     "id": "KI26", "name": "彧中", "reading": "いくちゅう", "meridian": "KI",
@@ -231,7 +231,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「彧」は盛んなさま、「中」は胸の中。胸の中で経気が盛んな所という説がある。諸説ある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.3015, 0.1787], "L": [0.0545, 1.3015, 0.1786]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.2999, 0.18], "L": [0.0545, 1.2998, 0.1798]}, "positionStatus": "draft"
   },
   {
     "id": "KI27", "name": "兪府", "reading": "ゆふ", "meridian": "KI",
@@ -240,6 +240,6 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「兪」は気の出入り、「府」は集まる所。腎経の気が最後に集まる所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0545, 1.318, 0.1653], "L": [0.0545, 1.318, 0.165]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0545, 1.3183, 0.165], "L": [0.0545, 1.3182, 0.1649]}, "positionStatus": "draft"
   }
 ]

@@ -1,0 +1,83 @@
+[
+  {
+    "id": "PC1", "name": "天池", "reading": "てんち", "meridian": "PC",
+    "location": "前胸部、第4肋間、前正中線の外方5寸（乳頭の外方1寸）",
+    "landmarks": ["第4肋間", "乳頭"],
+    "kotsudo": "chest_width",
+    "tags": [],
+    "etymology": { "text": "「天」は体の上部（胸）、「池」は水のたまる所。乳房のそばで、気が池のように集まる所という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1362, 1.2196, 0.187], "L": [0.1356, 1.2194, 0.1864]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC2", "name": "天泉", "reading": "てんせん", "meridian": "PC",
+    "location": "上腕前面、上腕二頭筋の長頭と短頭の間、腋窩横紋前端の下方2寸",
+    "landmarks": ["上腕二頭筋（長頭・短頭）", "腋窩横紋"],
+    "kotsudo": "upper_arm_pc",
+    "tags": [],
+    "etymology": { "text": "「天」は上部、「泉」はいずみ。天池から下った気が泉のように湧く所という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1843, 1.2035, 0.117], "L": [0.1843, 1.2034, 0.1171]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC3", "name": "曲沢", "reading": "きょくたく", "meridian": "PC",
+    "location": "肘前面、肘窩横紋上、上腕二頭筋腱の内側の陥凹部",
+    "landmarks": ["肘窩横紋", "上腕二頭筋腱", "上腕動脈"],
+    "kotsudo": null,
+    "tags": ["合水穴"],
+    "etymology": { "text": "「曲」は肘を曲げる、「沢」は水が集まる低い所。肘を曲げて取る肘窩のくぼみ（合水穴）という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2018, 1.0513, 0.104], "L": [0.2017, 1.0512, 0.1044]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC4", "name": "郄門", "reading": "げきもん", "meridian": "PC",
+    "location": "前腕前面、長掌筋腱と橈側手根屈筋腱の間、手関節掌側横紋の上方5寸",
+    "landmarks": ["長掌筋腱", "橈側手根屈筋腱"],
+    "kotsudo": "forearm_pc",
+    "tags": ["郄穴"],
+    "etymology": { "text": "「郄」はすき間、「門」は出入り口。心包経の郄穴で、気が深く集まる門という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2256, 0.9119, 0.1245], "L": [0.2256, 0.9119, 0.1248]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC5", "name": "間使", "reading": "かんし", "meridian": "PC",
+    "location": "前腕前面、長掌筋腱と橈側手根屈筋腱の間、手関節掌側横紋の上方3寸",
+    "landmarks": ["長掌筋腱", "橈側手根屈筋腱"],
+    "kotsudo": "forearm_pc",
+    "tags": ["経金穴"],
+    "etymology": { "text": "「間」は二つの腱の間、「使」は使い（心包は臣使の官）。腱の間にあり、心包の働きに関わる穴という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.236, 0.8717, 0.1273], "L": [0.236, 0.8718, 0.1276]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC6", "name": "内関", "reading": "ないかん", "meridian": "PC",
+    "location": "前腕前面、長掌筋腱と橈側手根屈筋腱の間、手関節掌側横紋の上方2寸",
+    "landmarks": ["長掌筋腱", "橈側手根屈筋腱"],
+    "kotsudo": "forearm_pc",
+    "tags": ["絡穴", "八脈交会穴（陰維脈）"],
+    "etymology": { "text": "「内」は前腕の内側、「関」は関所。前腕内側の要所で、外関（三焦経）と表裏に向かい合うという説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2413, 0.8518, 0.1302], "L": [0.2413, 0.8518, 0.1304]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC7", "name": "大陵", "reading": "だいりょう", "meridian": "PC",
+    "location": "手関節前面、長掌筋腱と橈側手根屈筋腱の間、手関節掌側横紋上",
+    "landmarks": ["長掌筋腱", "橈側手根屈筋腱", "手関節掌側横紋"],
+    "kotsudo": null,
+    "tags": ["原穴", "兪土穴"],
+    "etymology": { "text": "「大」は大きい、「陵」は丘。手根部の高まり（大きな丘）のそばにある穴という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2534, 0.8125, 0.14], "L": [0.2534, 0.8125, 0.1401]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC8", "name": "労宮", "reading": "ろうきゅう", "meridian": "PC",
+    "location": "手掌、第2・第3中手骨の間、中手指節関節の近位の陥凹部",
+    "landmarks": ["第2・第3中手骨"],
+    "kotsudo": null,
+    "tags": ["滎火穴"],
+    "etymology": { "text": "「労」は働く（手）、「宮」は中心。よく働く手のひらの中央にある穴という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2732, 0.7348, 0.1524], "L": [0.2732, 0.7348, 0.1524]}, "positionStatus": "draft"
+  },
+  {
+    "id": "PC9", "name": "中衝", "reading": "ちゅうしょう", "meridian": "PC",
+    "location": "中指、中指先端の中央",
+    "landmarks": ["中指先端"],
+    "kotsudo": null,
+    "tags": ["井木穴"],
+    "etymology": { "text": "「中」は中指、「衝」は要所・突き当たり。中指の先端にある穴という説がある。", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.2785, 0.6482, 0.2046], "L": [0.2785, 0.648, 0.2047]}, "positionStatus": "draft"
+  }
+]

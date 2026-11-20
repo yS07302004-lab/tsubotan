@@ -73,9 +73,11 @@ function Body({
       </mesh>
       <mesh geometry={skinGeo} renderOrder={ORDER.skinColor} visible={!hidden} raycast={() => null}>
         {/* transparent の切り替えはシェーダの再コンパイルが要るので、key で作り直す */}
+        {/* 色は skin.glb の頂点色（皮膚・手掌足底・爪）。頂点色が無いモデルなら SKIN_COLOR */}
         <meshStandardMaterial
           key={opaque ? 'opaque' : 'transparent'}
-          color={SKIN_COLOR}
+          color={skinGeo.getAttribute('color') ? '#ffffff' : SKIN_COLOR}
+          vertexColors={!!skinGeo.getAttribute('color')}
           roughness={0.85}
           transparent={!opaque}
           opacity={skinOpacity}
@@ -215,6 +217,7 @@ function PointMarker({
 function MeridianLine({ points, side, surface }: { points: Acupoint[]; side: Side; surface: SkinSurface }) {
   const path = useMemo(() => {
     const ps = points.filter((p) => p.positions[side]).map((p) => new THREE.Vector3(...(p.positions[side] as Vec3)));
+    if (ps.length < 2) return [];
     const out: THREE.Vector3[] = [];
     for (let i = 0; i + 1 < ps.length; i++) {
       const seg = surface.walk(ps[i], ps[i + 1], 0.004, LIFT).map((h) => h.point); // 皮膚の上を4mmずつ
@@ -246,16 +249,16 @@ function KotsudoRuler({
     let A = new THREE.Vector3(...a);
     let B = new THREE.Vector3(...b);
     if (seg.align === 'point_height' && at) {
-      // 横向きの区間は、選んだ穴の高さへ平行移動し、前から皮膚へ乗せ直す
+      // 横向きの区間は、選んだ穴の高さへ平行移動し、元の向き（皮膚の法線）から皮膚へ乗せ直す
       const dy = at[1] - (A.y + B.y) / 2;
-      const front = new THREE.Vector3(0, 0, 1);
-      A = surface.project(A.setY(A.y + dy), front, 0.2).point;
-      B = surface.project(B.setY(B.y + dy), front, 0.2).point;
+      const nA = surface.closest(A).normal;
+      const nB = surface.closest(B).normal;
+      A = surface.project(A.setY(A.y + dy), nA, 0.2).point;
+      B = surface.project(B.setY(B.y + dy), nB, 0.2).point;
     }
     const total = seg.sun + (seg.extend ?? 0);
-    // 直線上で 0.5寸 ごとに目盛り位置を決め、皮膚へ寄せる
-    const end = A.clone().lerp(B, total / seg.sun);
-    const path = surface.path(A, end, total * 2, LIFT);
+    // 皮膚の上の道のりで 0.5寸 ごとに目盛りを取る（extend は同じ間隔で先へ延ばす）
+    const path = surface.ruler(A, B, seg.sun * 2, LIFT, (seg.extend ?? 0) * 2);
     const main = path.slice(0, seg.sun * 2 + 1).map((h) => h.point);
     const ext = path.slice(seg.sun * 2).map((h) => h.point);
     const ticks: THREE.Vector3[] = [];
@@ -404,11 +407,20 @@ function Scene(props: ViewerProps) {
   return (
     <>
       <Body skinGeo={skinGeo} boneGeo={boneGeo} skinOpacity={skinOpacity} placing={placing} onPlace={onPlace} />
-      {MERIDIANS.flatMap((m) =>
-        SIDES.map((side) => (
-          <MeridianLine key={`${m.code}-${side}`} points={points.filter((p) => p.meridian === m.code)} side={side} surface={surface} />
-        )),
-      )}
+      {MERIDIANS.flatMap((m) => {
+        const mine = points.filter((p) => p.meridian === m.code);
+        const lines = m.lines ?? [mine.map((p) => p.id)];
+        return lines.flatMap((ids, li) =>
+          SIDES.map((side) => (
+            <MeridianLine
+              key={`${m.code}-${li}-${side}`}
+              points={ids.map((id) => mine.find((p) => p.id === id)).filter((p): p is Acupoint => !!p)}
+              side={side}
+              surface={surface}
+            />
+          )),
+        );
+      })}
       {!placing && selected && <KotsudoRuler point={selPoint} side={selected.side} landmarks={landmarks} surface={surface} />}
       {points.flatMap((p) =>
         SIDES.filter((side) => p.positions[side]).map((side) => (

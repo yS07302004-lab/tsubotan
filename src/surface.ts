@@ -110,6 +110,74 @@ export class SkinSurface {
     return this.lifted(out, lift);
   }
 
+  /**
+   * 骨度の物差し：a→b を皮膚の上で結び（walk）、その道のりを n 等分した点（n+1 個）を返す。
+   * extendSteps があれば、同じ間隔で b の先へ延ばした点も続けて返す。頭のように曲がった所でも寸が道のりで測れる
+   */
+  /**
+   * a と b を通り、両端の法線の平均を含む平面で皮膚を切った線をたどって a→b を結ぶ（皮膚に引いたまっすぐな線）。
+   * 平面の上を両方向へ歩き、b に早く着いた方を使う（頭なら顔側ではなく頭頂を越える側）
+   */
+  planeWalk(a: THREE.Vector3, b: THREE.Vector3, step: number): SurfaceHit[] {
+    const A = this.closest(a), B = this.closest(b);
+    const chord = B.point.clone().sub(A.point);
+    const nAvg = A.normal.clone().add(B.normal);
+    if (nAvg.lengthSq() < 1e-6) nAvg.copy(A.normal);
+    const pn = new THREE.Vector3().crossVectors(chord, nAvg);
+    if (pn.lengthSq() < 1e-10) return this.walk(a, b, step, 0);
+    pn.normalize();
+    const onPlane = (p: THREE.Vector3) => p.addScaledVector(pn, -p.clone().sub(A.point).dot(pn));
+    const maxLen = chord.length() * 3 + 0.3;
+    const tryDir = (sign: number) => {
+      const out: SurfaceHit[] = [A];
+      let len = 0;
+      let prev = new THREE.Vector3().crossVectors(pn, A.normal).multiplyScalar(sign).normalize();
+      while (len < maxLen) {
+        const cur = out[out.length - 1];
+        if (cur.point.distanceTo(B.point) <= step * 1.5) {
+          out.push(B);
+          return { out, len: len + cur.point.distanceTo(B.point) };
+        }
+        let d = new THREE.Vector3().crossVectors(pn, cur.normal).normalize();
+        if (d.dot(prev) < 0) d.negate();
+        const nx = this.closest(onPlane(cur.point.clone().addScaledVector(d, step)));
+        len += nx.point.distanceTo(cur.point);
+        prev = nx.point.clone().sub(cur.point).normalize();
+        out.push(nx);
+      }
+      return null;
+    };
+    const r1 = tryDir(1), r2 = tryDir(-1);
+    const best = r1 && r2 ? (r1.len <= r2.len ? r1 : r2) : r1 ?? r2;
+    return best ? best.out : this.walk(a, b, step, 0);
+  }
+
+  ruler(a: THREE.Vector3, b: THREE.Vector3, n: number, lift: number, extendSteps = 0): SurfaceHit[] {
+    const w = this.planeWalk(a, b, 0.002);
+    const pts = w.map((h) => h.point);
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+    const total = cum[cum.length - 1];
+    const at = (d: number, list: THREE.Vector3[], c: number[]) => {
+      let i = 1;
+      while (i < c.length - 1 && c[i] < d) i++;
+      const t = c[i] === c[i - 1] ? 0 : (d - c[i - 1]) / (c[i] - c[i - 1]);
+      return list[i - 1].clone().lerp(list[i], Math.min(1, Math.max(0, t)));
+    };
+    const out: THREE.Vector3[] = [];
+    for (let k = 0; k <= n; k++) out.push(at((total * k) / n, pts, cum));
+    if (extendSteps > 0) {
+      const unit = total / n;
+      // b の先：a→b の向きにまっすぐ延ばした点へ向かって歩き、同じ間隔で取る
+      const far = b.clone().add(b.clone().sub(a).multiplyScalar(((extendSteps + 2) * unit) / Math.max(a.distanceTo(b), 1e-6)));
+      const w2 = this.planeWalk(b, far, 0.002).map((h) => h.point);
+      const c2 = [0];
+      for (let i = 1; i < w2.length; i++) c2.push(c2[i - 1] + w2[i].distanceTo(w2[i - 1]));
+      for (let k = 1; k <= extendSteps; k++) out.push(at(unit * k, w2, c2));
+    }
+    return this.lifted(out.map((p) => this.closest(p)), lift);
+  }
+
   private lifted(out: SurfaceHit[], lift: number): SurfaceHit[] {
     const smoothed = out.map((h, i) => {
       const nn = h.normal.clone();

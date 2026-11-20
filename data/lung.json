@@ -6,7 +6,7 @@
     "kotsudo": "chest_width",
     "tags": ["募穴", "交会穴"],
     "etymology": { "text": "「中」は中焦、「府」は集まる所。中焦から起こる肺経の気が最初に集まる所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.1113, 1.2898, 0.1692], "L": [0.1111, 1.2895, 0.1688]}, "positionStatus": "draft"
+    "positions": {"R": [-0.115, 1.2916, 0.1658], "L": [0.1148, 1.2913, 0.1654]}, "positionStatus": "draft"
   },
   {
     "id": "LU2", "name": "雲門", "reading": "うんもん", "meridian": "LU",
@@ -15,7 +15,7 @@
     "kotsudo": "chest_width",
     "tags": [],
     "etymology": { "text": "「雲」は肺の気（天の気）を雲にたとえたもの、「門」は出入り口。肺の気が出入りする門という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.1113, 1.325, 0.1379], "L": [0.1112, 1.3247, 0.1376]}, "positionStatus": "draft"
+    "positions": {"R": [-0.111, 1.3244, 0.1387], "L": [0.1109, 1.3241, 0.1384]}, "positionStatus": "draft"
   },
   {
     "id": "LU3", "name": "天府", "reading": "てんぷ", "meridian": "LU",
@@ -24,7 +24,7 @@
     "kotsudo": "upper_arm",
     "tags": [],
     "etymology": { "text": "「天」は体の上部（肺）、「府」は集まる所。肺の気が集まる所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.224, 1.1794, 0.1046], "L": [0.2232, 1.1793, 0.1039]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2261, 1.1814, 0.1015], "L": [0.2254, 1.1813, 0.101]}, "positionStatus": "draft"
   },
   {
     "id": "LU4", "name": "侠白", "reading": "きょうはく", "meridian": "LU",
@@ -33,7 +33,7 @@
     "kotsudo": "upper_arm",
     "tags": [],
     "etymology": { "text": "「侠」は挟む、「白」は肺の色（五行で肺＝白）。腕を下ろすと肺（胸）を挟む位置にあるという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.224, 1.1566, 0.1067], "L": [0.2235, 1.1566, 0.1061]}, "positionStatus": "draft"
+    "positions": {"R": [-0.234, 1.1597, 0.0958], "L": [0.2332, 1.1596, 0.0952]}, "positionStatus": "draft"
   },
   {
     "id": "LU5", "name": "尺沢", "reading": "しゃくたく", "meridian": "LU",
@@ -42,7 +42,7 @@
     "kotsudo": "forearm",
     "tags": ["合水穴"],
     "etymology": { "text": "「尺」は前腕（尺部）、「沢」は水が集まる低い所。前腕の始まりのくぼみで、合水穴であることとも関係するという説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.222, 1.04, 0.1052], "L": [0.222, 1.04, 0.1054]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2278, 1.0513, 0.1054], "L": [0.2278, 1.0513, 0.1054]}, "positionStatus": "draft"
   },
   {
     "id": "LU6", "name": "孔最", "reading": "こうさい", "meridian": "LU",
@@ -51,7 +51,7 @@
     "kotsudo": "forearm",
     "tags": ["郄穴"],
     "etymology": { "text": "「孔」は穴・すき間、「最」は最も。肺経で気が最もよく集まる穴（郄穴）という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.241, 0.9467, 0.12], "L": [0.2409, 0.9467, 0.1198]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2477, 0.9511, 0.1176], "L": [0.2477, 0.9511, 0.1173]}, "positionStatus": "draft"
   },
   {
     "id": "LU7", "name": "列缺", "reading": "れっけつ", "meridian": "LU",
@@ -60,7 +60,7 @@
     "kotsudo": "forearm",
     "tags": ["絡穴", "八脈交会穴（任脈）", "四総穴（頭項）"],
     "etymology": { "text": "「列」は裂ける、「缺」は欠ける。橈骨茎状突起の上の裂け目にあり、ここから経脈が分かれる（絡穴）という説がある。また「列缺」は稲妻（雷光）を指す古語だとする説もある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.2738, 0.8431, 0.1241], "L": [0.2732, 0.8429, 0.1235]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2816, 0.8404, 0.1052], "L": [0.2804, 0.8402, 0.1053]}, "positionStatus": "draft"
   },
   {
     "id": "LU8", "name": "経渠", "reading": "けいきょ", "meridian": "LU",
@@ -69,7 +69,7 @@
     "kotsudo": "forearm",
     "tags": ["経金穴"],
     "etymology": { "text": "「経」は五兪穴の経穴（経金穴）で経気が通り過ぎる所、「渠」は溝。経気が溝を流れるように通る所という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.2631, 0.8337, 0.1323], "L": [0.263, 0.8336, 0.1319]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2736, 0.8304, 0.1281], "L": [0.273, 0.8301, 0.1275]}, "positionStatus": "draft"
   },
   {
     "id": "LU9", "name": "太淵", "reading": "たいえん", "meridian": "LU",
@@ -78,7 +78,7 @@
     "kotsudo": null,
     "tags": ["原穴", "兪土穴", "八会穴（脈会）"],
     "etymology": { "text": "「太」は大きい、「淵」は深い水たまり。脈気が深く大きく集まる所（脈会）という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.268, 0.815, 0.1379], "L": [0.2679, 0.8149, 0.1377]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2757, 0.8125, 0.1379], "L": [0.2757, 0.8126, 0.1379]}, "positionStatus": "draft"
   },
   {
     "id": "LU10", "name": "魚際", "reading": "ぎょさい", "meridian": "LU",
@@ -87,7 +87,7 @@
     "kotsudo": null,
     "tags": ["滎火穴"],
     "etymology": { "text": "母指球を魚の腹にたとえ（魚）、その境目（際）にある穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.3166, 0.775, 0.1445], "L": [0.3154, 0.7748, 0.1444]}, "positionStatus": "draft"
+    "positions": {"R": [-0.2943, 0.7919, 0.154], "L": [0.2944, 0.7919, 0.1541]}, "positionStatus": "draft"
   },
   {
     "id": "LU11", "name": "少商", "reading": "しょうしょう", "meridian": "LU",
@@ -96,6 +96,6 @@
     "kotsudo": null,
     "tags": ["井木穴"],
     "etymology": { "text": "「商」は五音で金（肺）に当たる音、「少」は小さい・末端。肺経の気が小さく出始める末端の穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.3273, 0.7342, 0.163], "L": [0.3262, 0.7344, 0.1635]}, "positionStatus": "draft"
+    "positions": {"R": [-0.3255, 0.7414, 0.168], "L": [0.3248, 0.7408, 0.1676]}, "positionStatus": "draft"
   }
 ]

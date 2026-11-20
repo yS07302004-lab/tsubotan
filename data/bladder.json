@@ -1,0 +1,605 @@
+[
+  {
+    "id": "BL1", "name": "睛明", "reading": "せいめい", "meridian": "BL",
+    "location": "顔面部、内眼角の内上方と眼窩内側壁の間の陥凹部",
+    "landmarks": ["内眼角", "眼窩内側壁"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0133, 1.521, 0.1738], "L": [0.0121, 1.5209, 0.1733]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL2", "name": "攅竹", "reading": "さんちく", "meridian": "BL",
+    "location": "頭部、眉毛内端の陥凹部（前頭切痕）",
+    "landmarks": ["眉毛内端", "前頭切痕"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0133, 1.5435, 0.1824], "L": [0.0133, 1.5435, 0.1823]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL3", "name": "眉衝", "reading": "びしょう", "meridian": "BL",
+    "location": "頭部、前頭切痕の上方、前髪際の後方5分（神庭と曲差の中点）",
+    "landmarks": ["前髪際", "前頭切痕"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0093, 1.6313, 0.1322], "L": [0.0093, 1.6312, 0.1322]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL4", "name": "曲差", "reading": "きょくさ", "meridian": "BL",
+    "location": "頭部、前髪際の後方5分、前正中線の外方1寸5分",
+    "landmarks": ["前髪際", "前正中線"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0188, 1.6295, 0.1313], "L": [0.0187, 1.6292, 0.1312]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL5", "name": "五処", "reading": "ごしょ", "meridian": "BL",
+    "location": "頭部、前髪際の後方1寸、前正中線の外方1寸5分",
+    "landmarks": ["前髪際", "前正中線"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0186, 1.6344, 0.1184], "L": [0.0184, 1.6341, 0.1183]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL6", "name": "承光", "reading": "しょうこう", "meridian": "BL",
+    "location": "頭部、前髪際の後方2寸5分、前正中線の外方1寸5分",
+    "landmarks": ["前髪際", "前正中線"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0181, 1.6396, 0.0769], "L": [0.018, 1.6394, 0.0769]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL7", "name": "通天", "reading": "つうてん", "meridian": "BL",
+    "location": "頭部、前髪際の後方4寸、前正中線の外方1寸5分",
+    "landmarks": ["前髪際", "前正中線"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0176, 1.6331, 0.0352], "L": [0.0176, 1.633, 0.0353]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL8", "name": "絡却", "reading": "らっきゃく", "meridian": "BL",
+    "location": "頭部、前髪際の後方5寸5分、後正中線の外方1寸5分（百会の後方5分の外方）",
+    "landmarks": ["前髪際", "百会"],
+    "kotsudo": "head_sagittal",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0174, 1.611, 0.0003], "L": [0.0174, 1.6109, 0.0005]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL9", "name": "玉枕", "reading": "ぎょくちん", "meridian": "BL",
+    "location": "頭部、外後頭隆起上縁と同じ高さ、後正中線の外方1寸3分",
+    "landmarks": ["外後頭隆起", "上項線"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0164, 1.5495, -0.0244], "L": [0.0164, 1.5495, -0.0244]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL10", "name": "天柱", "reading": "てんちゅう", "meridian": "BL",
+    "location": "後頸部、第2頸椎棘突起上縁と同じ高さ、僧帽筋外縁の陥凹部（取り方では頭半棘筋の膨隆部の外縁）",
+    "landmarks": ["第2頸椎棘突起", "頭半棘筋"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0164, 1.448, 0.0194], "L": [0.0162, 1.4481, 0.0199]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL11", "name": "大杼", "reading": "だいじょ", "meridian": "BL",
+    "location": "上背部、第1胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第1胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["八会穴（骨会）"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.3487, -0.0195], "L": [0.0286, 1.3488, -0.0198]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL12", "name": "風門", "reading": "ふうもん", "meridian": "BL",
+    "location": "上背部、第2胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第2胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.3282, -0.0246], "L": [0.0286, 1.3283, -0.0249]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL13", "name": "肺兪", "reading": "はいゆ", "meridian": "BL",
+    "location": "上背部、第3胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第3胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.3022, -0.027], "L": [0.0285, 1.3023, -0.0274]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL14", "name": "厥陰兪", "reading": "けついんゆ", "meridian": "BL",
+    "location": "上背部、第4胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第4胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.2777, -0.0287], "L": [0.0284, 1.2778, -0.0292]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL15", "name": "心兪", "reading": "しんゆ", "meridian": "BL",
+    "location": "上背部、第5胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第5胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.2398, -0.033], "L": [0.0284, 1.2398, -0.0335]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL16", "name": "督兪", "reading": "とくゆ", "meridian": "BL",
+    "location": "上背部、第6胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第6胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.2094, -0.03], "L": [0.0286, 1.2093, -0.0304]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL17", "name": "膈兪", "reading": "かくゆ", "meridian": "BL",
+    "location": "上背部、第7胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第7胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["八会穴（血会）"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.1793, -0.025], "L": [0.0285, 1.1792, -0.0254]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL18", "name": "肝兪", "reading": "かんゆ", "meridian": "BL",
+    "location": "上背部、第9胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第9胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.1266, -0.0178], "L": [0.0284, 1.1265, -0.0184]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL19", "name": "胆兪", "reading": "たんゆ", "meridian": "BL",
+    "location": "上背部、第10胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第10胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.0998, -0.0119], "L": [0.0285, 1.0997, -0.0123]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL20", "name": "脾兪", "reading": "ひゆ", "meridian": "BL",
+    "location": "上背部、第11胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第11胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.0757, -0.0082], "L": [0.0286, 1.0757, -0.0085]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL21", "name": "胃兪", "reading": "いゆ", "meridian": "BL",
+    "location": "上背部、第12胸椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第12胸椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.05, -0.0063], "L": [0.0287, 1.0499, -0.0065]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL22", "name": "三焦兪", "reading": "さんしょうゆ", "meridian": "BL",
+    "location": "腰部、第1腰椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第1腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 1.0152, -0.0018], "L": [0.0287, 1.0152, -0.0018]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL23", "name": "腎兪", "reading": "じんゆ", "meridian": "BL",
+    "location": "腰部、第2腰椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第2腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.9923, 0.0016], "L": [0.0287, 0.9923, 0.0015]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL24", "name": "気海兪", "reading": "きかいゆ", "meridian": "BL",
+    "location": "腰部、第3腰椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第3腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.9677, 0.0034], "L": [0.0287, 0.9677, 0.0035]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL25", "name": "大腸兪", "reading": "だいちょうゆ", "meridian": "BL",
+    "location": "腰部、第4腰椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第4腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.9472, 0.0001], "L": [0.0287, 0.9472, 0.0002]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL26", "name": "関元兪", "reading": "かんげんゆ", "meridian": "BL",
+    "location": "腰部、第5腰椎棘突起下縁と同じ高さ、後正中線の外方1寸5分",
+    "landmarks": ["第5腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.9228, -0.0051], "L": [0.0287, 0.9228, -0.0053]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL27", "name": "小腸兪", "reading": "しょうちょうゆ", "meridian": "BL",
+    "location": "仙骨部、第1後仙骨孔と同じ高さ、正中仙骨稜の外方1寸5分",
+    "landmarks": ["第1後仙骨孔", "正中仙骨稜"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.9195, -0.006], "L": [0.0287, 0.9195, -0.0061]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL28", "name": "膀胱兪", "reading": "ぼうこうゆ", "meridian": "BL",
+    "location": "仙骨部、第2後仙骨孔と同じ高さ、正中仙骨稜の外方1寸5分",
+    "landmarks": ["第2後仙骨孔", "正中仙骨稜"],
+    "kotsudo": "back_width",
+    "tags": ["背部兪穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.8941, -0.0171], "L": [0.0286, 0.8942, -0.0173]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL29", "name": "中膂兪", "reading": "ちゅうりょゆ", "meridian": "BL",
+    "location": "仙骨部、第3後仙骨孔と同じ高さ、正中仙骨稜の外方1寸5分",
+    "landmarks": ["第3後仙骨孔", "正中仙骨稜"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.8688, -0.0302], "L": [0.0286, 0.8689, -0.0306]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL30", "name": "白環兪", "reading": "はっかんゆ", "meridian": "BL",
+    "location": "仙骨部、第4後仙骨孔と同じ高さ、正中仙骨稜の外方1寸5分",
+    "landmarks": ["第4後仙骨孔", "正中仙骨稜"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0287, 0.8434, -0.038], "L": [0.0286, 0.8434, -0.0383]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL31", "name": "上髎", "reading": "じょうりょう", "meridian": "BL",
+    "location": "仙骨部、第1後仙骨孔（上後腸骨棘の頂点の高さ）",
+    "landmarks": ["第1後仙骨孔", "上後腸骨棘"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0268, 0.9195, -0.0059], "L": [0.0268, 0.9196, -0.006]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL32", "name": "次髎", "reading": "じりょう", "meridian": "BL",
+    "location": "仙骨部、第2後仙骨孔（上後腸骨棘の下縁の高さ）",
+    "landmarks": ["第2後仙骨孔", "上後腸骨棘"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0231, 0.8941, -0.0154], "L": [0.023, 0.8943, -0.0157]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL33", "name": "中髎", "reading": "ちゅうりょう", "meridian": "BL",
+    "location": "仙骨部、第3後仙骨孔",
+    "landmarks": ["第3後仙骨孔", "上後腸骨棘"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0198, 0.8688, -0.026], "L": [0.0196, 0.869, -0.0265]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL34", "name": "下髎", "reading": "げりょう", "meridian": "BL",
+    "location": "仙骨部、第4後仙骨孔",
+    "landmarks": ["第4後仙骨孔", "上後腸骨棘"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0171, 0.8434, -0.033], "L": [0.0168, 0.8435, -0.0336]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL35", "name": "会陽", "reading": "えよう", "meridian": "BL",
+    "location": "殿部、尾骨下端の外方5分",
+    "landmarks": ["尾骨"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0096, 0.7578, 0.0103], "L": [0.0093, 0.7576, 0.0101]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL36", "name": "承扶", "reading": "しょうふ", "meridian": "BL",
+    "location": "殿部、殿溝の中点",
+    "landmarks": ["殿溝"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0631, 0.7402, -0.0075], "L": [0.0629, 0.74, -0.0078]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL37", "name": "殷門", "reading": "いんもん", "meridian": "BL",
+    "location": "大腿部後面、大腿二頭筋と半腱様筋の間、殿溝の下方6寸",
+    "landmarks": ["大腿二頭筋", "半腱様筋", "殿溝"],
+    "kotsudo": "thigh_posterior",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0704, 0.5817, 0.0056], "L": [0.0704, 0.5816, 0.0054]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL38", "name": "浮郄", "reading": "ふげき", "meridian": "BL",
+    "location": "膝後面、大腿二頭筋腱の内縁、膝窩横紋の上方1寸",
+    "landmarks": ["大腿二頭筋腱", "膝窩横紋"],
+    "kotsudo": "thigh_posterior",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0992, 0.3977, 0.0227], "L": [0.0987, 0.3975, 0.0233]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL39", "name": "委陽", "reading": "いよう", "meridian": "BL",
+    "location": "膝後外側、大腿二頭筋腱の内縁、膝窩横紋上",
+    "landmarks": ["大腿二頭筋腱", "膝窩横紋"],
+    "kotsudo": null,
+    "tags": ["下合穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1074, 0.372, 0.0188], "L": [0.1068, 0.3717, 0.0194]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL40", "name": "委中", "reading": "いちゅう", "meridian": "BL",
+    "location": "膝後面、膝窩横紋の中点",
+    "landmarks": ["膝窩横紋", "膝窩動脈"],
+    "kotsudo": null,
+    "tags": ["合土穴", "四総穴（腰背）", "下合穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0713, 0.372, 0.0086], "L": [0.071, 0.3722, 0.008]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL41", "name": "附分", "reading": "ふぶん", "meridian": "BL",
+    "location": "上背部、第2胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第2胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.3282, -0.0313], "L": [0.0574, 1.3283, -0.0315]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL42", "name": "魄戸", "reading": "はくこ", "meridian": "BL",
+    "location": "上背部、第3胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第3胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.3022, -0.0374], "L": [0.0573, 1.3023, -0.0376]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL43", "name": "膏肓", "reading": "こうこう", "meridian": "BL",
+    "location": "上背部、第4胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第4胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.2777, -0.0417], "L": [0.0573, 1.2778, -0.0419]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL44", "name": "神堂", "reading": "しんどう", "meridian": "BL",
+    "location": "上背部、第5胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第5胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.2398, -0.0434], "L": [0.0574, 1.2398, -0.0435]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL45", "name": "譩譆", "reading": "いき", "meridian": "BL",
+    "location": "上背部、第6胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第6胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.2094, -0.0381], "L": [0.0573, 1.2093, -0.0383]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL46", "name": "膈関", "reading": "かくかん", "meridian": "BL",
+    "location": "上背部、第7胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第7胸椎棘突起", "肩甲骨内側縁"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.1793, -0.0338], "L": [0.0574, 1.1793, -0.0339]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL47", "name": "魂門", "reading": "こんもん", "meridian": "BL",
+    "location": "上背部、第9胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第9胸椎棘突起", "後正中線"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.1266, -0.0238], "L": [0.0574, 1.1267, -0.0236]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL48", "name": "陽綱", "reading": "ようこう", "meridian": "BL",
+    "location": "上背部、第10胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第10胸椎棘突起", "後正中線"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.0998, -0.0178], "L": [0.0574, 1.0998, -0.0176]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL49", "name": "意舎", "reading": "いしゃ", "meridian": "BL",
+    "location": "上背部、第11胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第11胸椎棘突起", "後正中線"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.0757, -0.0124], "L": [0.0574, 1.0757, -0.0123]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL50", "name": "胃倉", "reading": "いそう", "meridian": "BL",
+    "location": "上背部、第12胸椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第12胸椎棘突起", "後正中線"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.05, -0.0065], "L": [0.0574, 1.05, -0.0064]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL51", "name": "肓門", "reading": "こうもん", "meridian": "BL",
+    "location": "腰部、第1腰椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第1腰椎棘突起"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 1.0152, 0.0002], "L": [0.0573, 1.0153, 0.0005]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL52", "name": "志室", "reading": "ししつ", "meridian": "BL",
+    "location": "腰部、第2腰椎棘突起下縁と同じ高さ、後正中線の外方3寸",
+    "landmarks": ["第2腰椎棘突起", "第12肋骨"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 0.9923, 0.0047], "L": [0.0573, 0.9923, 0.005]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL53", "name": "胞肓", "reading": "ほうこう", "meridian": "BL",
+    "location": "殿部、第2後仙骨孔と同じ高さ、正中仙骨稜の外方3寸",
+    "landmarks": ["第2後仙骨孔"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 0.8941, -0.019], "L": [0.0574, 0.894, -0.0188]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL54", "name": "秩辺", "reading": "ちっぺん", "meridian": "BL",
+    "location": "殿部、第4後仙骨孔と同じ高さ、正中仙骨稜の外方3寸",
+    "landmarks": ["第4後仙骨孔"],
+    "kotsudo": "back_width",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0574, 0.8434, -0.0394], "L": [0.0574, 0.8434, -0.0393]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL55", "name": "合陽", "reading": "ごうよう", "meridian": "BL",
+    "location": "下腿後面、腓腹筋外側頭と内側頭の間、膝窩横紋の下方2寸",
+    "landmarks": ["腓腹筋", "膝窩横紋"],
+    "kotsudo": "lower_leg_lateral",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0661, 0.3248, -0.0033], "L": [0.0659, 0.3249, -0.0038]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL56", "name": "承筋", "reading": "しょうきん", "meridian": "BL",
+    "location": "下腿後面、腓腹筋の両筋腹の間、膝窩横紋の下方5寸",
+    "landmarks": ["腓腹筋", "膝窩横紋"],
+    "kotsudo": "lower_leg_lateral",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0628, 0.2485, -0.0085], "L": [0.0627, 0.2485, -0.0089]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL57", "name": "承山", "reading": "しょうざん", "meridian": "BL",
+    "location": "下腿後面、腓腹筋筋腹とアキレス腱の移行部（委中の下方8寸）",
+    "landmarks": ["腓腹筋", "アキレス腱"],
+    "kotsudo": "lower_leg_lateral",
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0672, 0.1737, 0.0073], "L": [0.0671, 0.1736, 0.007]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL58", "name": "飛揚", "reading": "ひよう", "meridian": "BL",
+    "location": "下腿後外側、腓腹筋外側頭下縁とアキレス腱の間、崑崙の上方7寸",
+    "landmarks": ["腓腹筋外側頭", "アキレス腱"],
+    "kotsudo": "lower_leg_lateral",
+    "tags": ["絡穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1161, 0.1493, 0.0417], "L": [0.1151, 0.1496, 0.0422]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL59", "name": "跗陽", "reading": "ふよう", "meridian": "BL",
+    "location": "下腿後外側、腓骨とアキレス腱の間、崑崙の上方3寸",
+    "landmarks": ["腓骨", "アキレス腱"],
+    "kotsudo": "lower_leg_lateral",
+    "tags": ["郄穴（陽蹻脈）"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.0998, 0.0488, 0.0425], "L": [0.0991, 0.0488, 0.0432]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL60", "name": "崑崙", "reading": "こんろん", "meridian": "BL",
+    "location": "足関節後外側、外果尖とアキレス腱の間の陥凹部",
+    "landmarks": ["外果尖", "アキレス腱"],
+    "kotsudo": null,
+    "tags": ["経火穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1023, -0.0253, 0.0425], "L": [0.1018, -0.0252, 0.0432]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL61", "name": "僕参", "reading": "ぼくしん", "meridian": "BL",
+    "location": "足外側、崑崙の下方、踵骨外側、赤白肉際",
+    "landmarks": ["踵骨"],
+    "kotsudo": null,
+    "tags": [],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1063, -0.0641, 0.0425], "L": [0.1058, -0.0637, 0.043]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL62", "name": "申脈", "reading": "しんみゃく", "meridian": "BL",
+    "location": "足外側、外果尖の直下、外果下縁と踵骨の間の陥凹部",
+    "landmarks": ["外果尖", "踵骨"],
+    "kotsudo": null,
+    "tags": ["八脈交会穴（陽蹻脈）"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1098, -0.0373, 0.0542], "L": [0.1088, -0.0377, 0.0548]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL63", "name": "金門", "reading": "きんもん", "meridian": "BL",
+    "location": "足背、外果前縁の遠位、第5中足骨粗面の後方、立方骨下方の陥凹部",
+    "landmarks": ["第5中足骨粗面", "立方骨"],
+    "kotsudo": null,
+    "tags": ["郄穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1346, -0.0517, 0.0869], "L": [0.1339, -0.0522, 0.0873]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL64", "name": "京骨", "reading": "けいこつ", "meridian": "BL",
+    "location": "足外側、第5中足骨粗面の遠位、赤白肉際",
+    "landmarks": ["第5中足骨粗面"],
+    "kotsudo": null,
+    "tags": ["原穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1394, -0.0637, 0.0901], "L": [0.1385, -0.0634, 0.0906]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL65", "name": "束骨", "reading": "そっこつ", "meridian": "BL",
+    "location": "足外側、第5中足指節関節の近位陥凹部、赤白肉際",
+    "landmarks": ["第5中足指節関節"],
+    "kotsudo": null,
+    "tags": ["兪木穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1612, -0.0649, 0.1318], "L": [0.1602, -0.0646, 0.1323]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL66", "name": "足通谷", "reading": "あしのつうこく", "meridian": "BL",
+    "location": "足の第5指、第5中足指節関節外側の遠位陥凹部、赤白肉際",
+    "landmarks": ["第5中足指節関節"],
+    "kotsudo": null,
+    "tags": ["滎水穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1665, -0.0665, 0.1476], "L": [0.1654, -0.0662, 0.1477]}, "positionStatus": "draft"
+  },
+  {
+    "id": "BL67", "name": "至陰", "reading": "しいん", "meridian": "BL",
+    "location": "足の第5指、末節骨外側、爪甲角の近位外方1分（指寸）、爪甲外側縁の垂線と爪甲基底部の水平線の交点",
+    "landmarks": ["爪甲"],
+    "kotsudo": null,
+    "tags": ["井金穴"],
+    "etymology": { "text": "", "status": "draft", "sources": [] },
+    "positions": {"R": [-0.1731, -0.0617, 0.1768], "L": [0.1722, -0.0623, 0.1768]}, "positionStatus": "draft"
+  }
+]

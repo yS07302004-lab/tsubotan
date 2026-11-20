@@ -117,7 +117,7 @@ export default function PointCard({ point, side, onSide, landmarks, onClose, onP
         名前の由来
         {ety.status === 'draft' ? <span className="badge draft">未確認</span> : <span className="badge ok">確認済み</span>}
       </h3>
-      <p>{ety.text}</p>
+      <p>{ety.text || <span className="muted">（まだ書いていません）</span>}</p>
       <p className="muted small">
         出典：{ety.sources.length ? ety.sources.join(' / ') : '未記入'}
       </p>

@@ -101,6 +101,7 @@ function merge(files) {
 // 内側の面があると、表面へ点を寄せたときに皮膚の下へ入ったり、半透明で2重に見えたりするので、
 // つながった部分ごとに分け、外接箱がいちばん大きい部分（＝外側の面）だけを残す。
 function keepOuterShell(m) {
+  // m.cls（頂点ごとの領域）があれば一緒に並べ替える
   const n = m.pos.length / 3;
   const parent = new Int32Array(n).map((_, i) => i);
   const find = (x) => {
@@ -128,9 +129,11 @@ function keepOuterShell(m) {
   const remap = new Int32Array(n).fill(-1);
   const pos = [];
   const nor = [];
+  const cls = [];
   for (let v = 0; v < n; v++) {
     if (find(v) !== outer) continue;
     remap[v] = pos.length / 3;
+    if (m.cls) cls.push(m.cls[v]);
     for (let k = 0; k < 3; k++) {
       pos.push(m.pos[v * 3 + k]);
       nor.push(m.nor[v * 3 + k]);
@@ -142,7 +145,17 @@ function keepOuterShell(m) {
     idx.push(remap[m.idx[i]], remap[m.idx[i + 1]], remap[m.idx[i + 2]]);
   }
   console.log(`skin: ${box.size} parts -> kept outer shell (${pos.length / 3} of ${n} vertices)`);
-  return { pos: new Float32Array(pos), nor: new Float32Array(nor), idx: new Uint32Array(idx) };
+  return { pos: new Float32Array(pos), nor: new Float32Array(nor), idx: new Uint32Array(idx), cls: m.cls ? cls : null };
+}
+
+// 皮膚の頂点色：0=皮膚, 1=手掌・足底（赤白肉際の白い側）, 2=爪。scripts/skin_regions.py が作る
+const REGION_COLORS = ['#e3b99c', '#f2d3bf', '#fbe4e4'];
+const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+function regionColors(cls) {
+  const rgb = REGION_COLORS.map((h) => [1, 3, 5].map((i) => srgbToLinear(parseInt(h.slice(i, i + 2), 16) / 255)));
+  const out = new Float32Array(cls.length * 3);
+  cls.forEach((c, i) => out.set(rgb[c] ?? rgb[0], i * 3));
+  return out;
 }
 
 function bounds(p) {
@@ -156,8 +169,13 @@ function bounds(p) {
   return { min, max };
 }
 
-async function writeGlb(name, meshName, files, { outerOnly = false } = {}) {
-  const m = outerOnly ? keepOuterShell(merge(files)) : merge(files);
+async function writeGlb(name, meshName, files, { outerOnly = false, regions = null } = {}) {
+  const raw = merge(files);
+  if (regions) {
+    if (regions.length !== raw.pos.length / 3) throw new Error(`skin-regions.txt の長さ ${regions.length} が頂点数 ${raw.pos.length / 3} と合わない`);
+    raw.cls = regions;
+  }
+  const m = outerOnly ? keepOuterShell(raw) : raw;
   const doc = new Document();
   doc.getRoot().getAsset().copyright = CREDIT;
   const buf = doc.createBuffer();
@@ -167,6 +185,7 @@ async function writeGlb(name, meshName, files, { outerOnly = false } = {}) {
     .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(m.nor).setBuffer(buf))
     .setIndices(doc.createAccessor().setType('SCALAR').setArray(m.idx).setBuffer(buf))
     .setMaterial(doc.createMaterial(meshName));
+  if (m.cls) prim.setAttribute('COLOR_0', doc.createAccessor().setType('VEC3').setArray(regionColors(m.cls)).setBuffer(buf));
   const mesh = doc.createMesh(meshName).addPrimitive(prim);
   const node = doc.createNode(meshName).setMesh(mesh).setExtras({ source: 'BodyParts3D 4.0 partof', files });
   doc.createScene().addChild(node);
@@ -193,7 +212,10 @@ async function writeGlb(name, meshName, files, { outerOnly = false } = {}) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true }); // skin（外側の面だけ）
+const regionsFile = path.join(ROOT, 'scripts', 'skin-regions.txt');
+const regions = fs.existsSync(regionsFile) ? [...fs.readFileSync(regionsFile, 'utf8').trim()].map(Number) : null;
+if (!regions) console.warn('scripts/skin-regions.txt が無いので、手掌・足底・爪の色は付けない（python3 scripts/skin_regions.py で作る）');
+const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true, regions }); // skin（外側の面だけ）
 const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591')); // bone organ + costal cartilage
 fs.writeFileSync(
   path.join(OUT, 'manifest.json'),
