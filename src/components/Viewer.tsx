@@ -53,10 +53,11 @@ function Nails({ opacity }: { opacity: number }) {
   }, [gltf]);
   const opaque = opacity >= 0.999;
   if (opacity <= 0.001) return null;
-  const mat = (color: string, offset: number, rough: number) => (
+  const mat = (color: string, offset: number, rough: number, vertexColors = false) => (
     <meshStandardMaterial
       key={opaque ? 'o' : 't'}
       color={color}
+      vertexColors={vertexColors}
       roughness={rough}
       transparent={!opaque}
       opacity={opacity}
@@ -71,11 +72,11 @@ function Nails({ opacity }: { opacity: number }) {
     <group>
       {geo.fold && (
         <mesh geometry={geo.fold} renderOrder={ORDER.skinColor + 0.3} raycast={() => null}>
-          {mat('#c79a86', -1, 0.9)}
+          {mat('#d3a68f', -1, 0.9)}
         </mesh>
       )}
       <mesh geometry={geo.nail} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
-        {mat('#f3d6d0', -4, 0.3)}
+        {mat(geo.nail.getAttribute('color') ? '#ffffff' : '#f3d6d0', -4, 0.3, !!geo.nail.getAttribute('color'))}
       </mesh>
     </group>
   );
@@ -512,6 +513,14 @@ function CameraRig({
     if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__view = { controls, camera };
   }, [controls, camera]);
 
+  // 指で動かし始めたら、自動のカメラ移動はやめる（ピンチ中に引き戻されないように）
+  useEffect(() => {
+    if (!controls) return;
+    const stop = () => (anim.current = null);
+    controls.addEventListener('start', stop);
+    return () => controls.removeEventListener('start', stop);
+  }, [controls]);
+
   const animate = (toT: THREE.Vector3, toP: THREE.Vector3) => {
     if (!controls) return;
     anim.current = { t: 0, fromT: controls.target.clone(), toT, fromP: camera.position.clone(), toP };
@@ -651,13 +660,30 @@ function Scene(props: ViewerProps) {
 }
 
 export default function Viewer(props: ViewerProps) {
+  // 2本指の操作（ピンチなど）の最中・直後は、指を離したときの「タップ」で穴が選ばれないようにする
+  const touches = useRef(new Set<number>());
+  const multiAt = useRef(0);
+  const onSelect = (ref: PointRef) => {
+    if (touches.current.size > 0 || performance.now() - multiAt.current < 600) return;
+    props.onSelect(ref);
+  };
   return (
-    <Canvas className="viewer" camera={{ position: INITIAL_CAMERA.position, fov: 35, near: 0.01, far: 20 }} dpr={[1, 2]} gl={{ antialias: true }}>
+    <Canvas
+      onPointerDown={(e) => {
+        touches.current.add(e.pointerId);
+        if (touches.current.size >= 2) multiAt.current = performance.now();
+      }}
+      onPointerUp={(e) => {
+        if (touches.current.size >= 2) multiAt.current = performance.now();
+        touches.current.delete(e.pointerId);
+      }}
+      onPointerCancel={(e) => touches.current.delete(e.pointerId)}
+      className="viewer" camera={{ position: INITIAL_CAMERA.position, fov: 35, near: 0.01, far: 20 }} dpr={[1, 2]} gl={{ antialias: true }}>
       <color attach="background" args={['#f6f3ee']} />
       <Lights />
       <Suspense fallback={<Html center>読み込み中…</Html>}>
         <GhostCtx.Provider value={props.showGhost}>
-          <Scene {...props} />
+          <Scene {...props} onSelect={onSelect} />
         </GhostCtx.Provider>
       </Suspense>
       <OrbitControls makeDefault target={INITIAL_CAMERA.target} enableDamping minDistance={0.08} maxDistance={4} onStart={props.onInteract} />

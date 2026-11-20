@@ -124,7 +124,8 @@ for side in ['right', 'left']:
 
         # 爪甲は皮膚とほぼ同じ高さ（0.3mm）。周りの爪郭は少し大きく、さらに低く（0.15mm）・暗めに描いて、くぼんで見せる
         grid = make_grid(t_prox, t_end, 1.0, 0.0003)
-        rim = make_grid(t_prox - 0.07, t_end + 0.02, 1.13, 0.00015)
+        # 爪郭は根元と両側だけ（先端＝遊離縁には無い）。爪より少し広く・根元側へ長く、先端は爪と同じ所まで
+        rim = make_grid(t_prox - 0.06, t_end - 0.01, 1.10, 0.00015)
         nu, nv = grid.shape[0], grid.shape[1]
         pos = grid.reshape(-1, 3)
         idx = tris(nu, nv)
@@ -132,6 +133,8 @@ for side in ['right', 'left']:
             'side': 'R' if side == 'right' else 'L', 'digit': digit,
             'positions': np.round(pos, 5).tolist(), 'indices': idx,
             'rimPositions': np.round(rim.reshape(-1, 3), 5).tolist(), 'rimIndices': tris(rim.shape[0], rim.shape[1]),
+            # 爪甲の各頂点の、根元(0)〜先端(1)の位置。爪半月・遊離縁の色分けに使う
+            'nailT': [round(i / (nu - 1), 3) for i in range(nu) for _ in range(nv)],
             'cornerLateral': np.round(grid[0, nv - 1], 5).tolist(),   # 爪甲の根元・外側（手は橈側、足は外側）の角
             'cornerMedial': np.round(grid[0, 0], 5).tolist(),
             'axis': np.round(a, 5).tolist(), 'lateralDir': np.round(s, 5).tolist(),

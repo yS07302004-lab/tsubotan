@@ -94,6 +94,12 @@ export default function PointCard({ point, side, onSide, landmarks, onClose, onP
 
       <h3>取穴部位</h3>
       <p>{point.location}</p>
+      {point.locationAlt && (
+        <p className="alt">
+          <span className="badge alt">別説</span>
+          {point.locationAlt}
+        </p>
+      )}
 
       <h3>目印</h3>
       <ul className="chips">

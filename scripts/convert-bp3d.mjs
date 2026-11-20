@@ -15,7 +15,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Document, NodeIO } from '@gltf-transform/core';
 import { KHRDracoMeshCompression } from '@gltf-transform/extensions';
-import { draco } from '@gltf-transform/functions';
+import { draco, simplify, weld } from '@gltf-transform/functions';
+import { MeshoptSimplifier } from 'meshoptimizer';
 import draco3d from 'draco3dgltf';
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
@@ -173,7 +174,7 @@ function bounds(p) {
   return { min, max };
 }
 
-async function writeGlb(name, meshName, files, { outerOnly = false, regions = null, clamp = false } = {}) {
+async function writeGlb(name, meshName, files, { outerOnly = false, regions = null, clamp = false, simplifyRatio = 0 } = {}) {
   const raw = merge(files);
   if (regions) {
     if (regions.length !== raw.pos.length / 3) throw new Error(`skin-regions.txt の長さ ${regions.length} が頂点数 ${raw.pos.length / 3} と合わない`);
@@ -200,14 +201,20 @@ async function writeGlb(name, meshName, files, { outerOnly = false, regions = nu
     'draco3d.decoder': await draco3d.createDecoderModule(),
   });
   // 量子化は位置 14bit（全身 1.7m で約0.1mm）にして、取穴の精度に影響しないようにする
+  // 重い層（全身の筋など）は、形を保ったままポリゴンを減らす（誤差 0.5mm まで）
+  if (simplifyRatio) {
+    await MeshoptSimplifier.ready;
+    await doc.transform(weld(), simplify({ simplifier: MeshoptSimplifier, ratio: simplifyRatio, error: 0.0005 / 2 }));
+  }
   if (USE_DRACO) await doc.transform(draco({ quantizePosition: 14, quantizeNormal: 10 }));
   const out = path.join(OUT, name);
   await io.write(out, doc);
   const b = bounds(m.pos);
+  const prim0 = doc.getRoot().listMeshes()[0].listPrimitives()[0];
   const info = {
     file: name,
-    vertices: m.pos.length / 3,
-    triangles: m.idx.length / 3,
+    vertices: prim0.getAttribute('POSITION').getCount(),
+    triangles: prim0.getIndices().getCount() / 3,
     parts: files.length,
     bytes: fs.statSync(out).size,
     bounds_m: b,
@@ -273,7 +280,8 @@ const regionsFile = path.join(ROOT, 'scripts', 'skin-regions.txt');
 const regions = fs.existsSync(regionsFile) ? [...fs.readFileSync(regionsFile, 'utf8').trim()].map(Number) : null;
 if (!regions) console.warn('scripts/skin-regions.txt が無いので、手掌・足底・爪の色は付けない（python3 scripts/skin_regions.py で作る）');
 const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true, regions }); // skin（外側の面だけ）
-const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591'), { clamp: true }); // bone organ + costal cartilage
+const bones = await writeGlb('bones.glb', 'bones', [...new Set([...filesUnder('isa', 'FMA5018', 'FMA7591'), ...filesUnder('partof', 'FMA7485'), ...filesUnder('isa', 'FMA10446')])].sort(), { clamp: true });
+// bone organ + costal cartilage + 胸骨（is_a では "zone of bone organ" に分類されていて bone organ に入らない）+ 椎間円板
 // ---- 目印の強調表示用：data/structures.json に出てくる部品を、部品ごとの別メッシュ（ノード名＝部品名）で1つの glb に入れる
 const partFiles = new Map();
 for (const tree of ['isa', 'partof'])
@@ -352,6 +360,22 @@ async function writeNails() {
       .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(new Float32Array(pos)).setBuffer(buf))
       .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(nor).setBuffer(buf))
       .setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(buf));
+    if (name === 'nails') {
+      // 爪甲の色：根元は白っぽい爪半月、なかほどは淡いピンク、先端は白い遊離縁
+      const stops = [[0, '#f4e6e1'], [0.16, '#f4e1dc'], [0.24, '#efc3bc'], [0.84, '#efc6bf'], [0.92, '#f8efea'], [1, '#fbf5f1']];
+      const lin = (h) => [1, 3, 5].map((i) => srgbToLinear(parseInt(h.slice(i, i + 2), 16) / 255));
+      const col = new Float32Array(pos.length);
+      const ts = nails.flatMap((n) => n.nailT);
+      ts.forEach((t, i) => {
+        let k = 0;
+        while (k < stops.length - 2 && t > stops[k + 1][0]) k++;
+        const [t0, c0] = stops[k], [t1, c1] = stops[k + 1];
+        const f = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
+        const a = lin(c0), b = lin(c1);
+        for (let j = 0; j < 3; j++) col[i * 3 + j] = a[j] + (b[j] - a[j]) * f;
+      });
+      prim.setAttribute('COLOR_0', doc.createAccessor().setType('VEC3').setArray(col).setBuffer(buf));
+    }
     scene.addChild(doc.createNode(name).setMesh(doc.createMesh(name).addPrimitive(prim)));
   }
   const io = new NodeIO().registerExtensions([KHRDracoMeshCompression]).registerDependencies({
@@ -367,8 +391,8 @@ async function writeNails() {
 }
 
 // 表示を切り替えるレイヤー（アプリで必要になったときだけ読み込む）
-const muscles = await writeGlb('muscles.glb', 'muscles', limbFiles('FMA5022'), { clamp: 'soft' }); // muscle organ（上肢・下肢）
-const arteries = await writeGlb('arteries.glb', 'arteries', limbFiles('FMA50720'), { clamp: 'soft' }); // artery（上肢・下肢）
+const muscles = await writeGlb('muscles.glb', 'muscles', filesUnder('isa', 'FMA5022'), { clamp: 'soft', simplifyRatio: 0.35 }); // muscle organ（全身）
+const arteries = await writeGlb('arteries.glb', 'arteries', filesUnder('isa', 'FMA50720'), { clamp: 'soft' }); // artery（全身）
 const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132'), { clamp: 'soft' }); // nerve（全部。BodyParts3D には主な神経だけ）
 const structures = await writeStructures();
 const nailsInfo = await writeNails();

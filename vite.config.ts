@@ -28,7 +28,16 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,glb,json,wasm}'],
+        // 大きい層（全身の筋・動脈、目印の強調）はインストール時には入れず、初めて表示したときにキャッシュする
+        globIgnores: ['**/models/muscles.glb', '**/models/arteries.glb', '**/models/structures.glb'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: /\/models\/.*\.glb$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'models', expiration: { maxEntries: 20 } },
+          },
+        ],
       },
     }),
   ],

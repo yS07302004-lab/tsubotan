@@ -14,7 +14,9 @@
   -webkit-text-size-adjust: 100%;
 }
 * { box-sizing: border-box; }
-html, body, #root { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
+html, body, #root { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: none; }
+button, input, select, textarea, .card, .list, .start, .modal-body { touch-action: manipulation; }
+.card, .list, .start, .modal-body { touch-action: pan-y; }
 button, select, input { font: inherit; color: inherit; }
 button {
   border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 12px; cursor: pointer;
@@ -155,3 +157,5 @@ button.danger { color: #b02a37; margin-top: 12px; }
 .start-actions { display: flex; flex-direction: column; gap: 8px; }
 button.big { padding: 14px; font-size: 18px; font-weight: bold; }
 .credit-start { font-size: 9px; color: var(--muted); margin-top: 16px; }
+.card p.alt { margin-top: 4px; font-size: 13px; color: var(--muted); }
+.badge.alt { background: #eee; color: #555; margin-right: 6px; border: 1px solid #ccc; }

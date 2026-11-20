@@ -1,6 +1,6 @@
 // 足の少陰腎経（右側で計算）。教科書：下腿は内果尖〜膝窩横紋1尺5寸、足は内果尖〜足底3寸、
 // 腹部は前正中線の外方5分、胸部は前正中線と乳頭線の中間（2寸）。横の寸は両乳頭間8寸
-import { V, argmin, cast, fromFront, icsY, mean, mesh, part, rulerMark, slice, type V3 } from './lib.ts';
+import { V, argmin, cast, fromFront, icsY, mean, mesh, part, redWhite, rulerMark, slice, type V3 } from './lib.ts';
 
 /** 体幹の目印（臍・恥骨結合・胸骨体下端・乳頭・前正中線）。心包経でも使う */
 export function trunkLandmarks() {
@@ -56,8 +56,8 @@ export function kidney(lm: Record<string, V3>) {
     return cast(V(at.x, -0.5, at.z), V(0, 1, 0)); // 第2・第3指間と踵を結ぶ線の前1/3、足底
   })();
   const nt = argmin(part('navicular bone of right foot'), (p) => -p.x); // 舟状骨粗面（最も内側）
-  const d2 = medial.clone().add(V(0, -0.5, 0)).normalize();
-  P.KI2 = cast(V(nt.x, nt.y - 0.014, nt.z).addScaledVector(d2, 0.06), d2.clone().negate());
+  // 然谷：内果の前下方、舟状骨の尖った所の直下で表裏の境目（赤白肉際）
+  P.KI2 = redWhite(nt, V(0, 0, 1), medial, V(0, -1, 0));
   P.KI3 = med(mt.y, pta.z);
   P.KI5 = med(mt.y - footU, pta.z - 0.002);
   P.KI4 = med((P.KI3.y + P.KI5.y) / 2, pta.z - 0.015);

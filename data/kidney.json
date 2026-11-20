@@ -15,7 +15,7 @@
     "kotsudo": null,
     "tags": ["滎火穴"],
     "etymology": { "text": "「然」は然骨（舟状骨の古い呼び名）、「谷」はくぼみ。然骨の下のくぼみにある穴という説がある。", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.0488, -0.0432, 0.1078], "L": [0.0477, -0.0436, 0.1081]}, "positionStatus": "draft"
+    "positions": {"R": [-0.0496, -0.0452, 0.1078], "L": [0.0486, -0.0457, 0.1081]}, "positionStatus": "draft"
   },
   {
     "id": "KI3", "name": "太渓", "reading": "たいけい", "meridian": "KI",

@@ -14,6 +14,8 @@ export interface Acupoint {
   reading: string;
   meridian: string;
   location: string;
+  /** 教科書の別説（別の部位の取り方）があれば */
+  locationAlt?: string;
   landmarks: string[];
   kotsudo: string | null;
   tags: string[];

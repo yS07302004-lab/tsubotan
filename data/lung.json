@@ -4,7 +4,7 @@
     "location": "前胸部、第1肋間と同じ高さ、鎖骨下窩の外側、前正中線の外方6寸",
     "landmarks": ["鎖骨", "第1肋間", "烏口突起"],
     "kotsudo": "chest_width",
-    "tags": ["募穴", "交会穴"],
+    "tags": ["募穴"],
     "etymology": { "text": "「中」は中焦、「府」は集まる所。中焦から起こる肺経の気が最初に集まる所という説がある。", "status": "draft", "sources": [] },
     "positions": {"R": [-0.115, 1.2916, 0.1658], "L": [0.1148, 1.2913, 0.1654]}, "positionStatus": "draft"
   },
