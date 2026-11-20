@@ -74,7 +74,7 @@ npm run model:convert             # public/models/*.glb を生成（--no-draco �
 
 | ファイル | 中身 |
 |---|---|
-| `data/lung.json` ほか（`kidney` `pericardium` `bladder`） | 肺経11穴・腎経27穴。形式は CLAUDE.md の通り（`positions` に左右の位置）。教科書に別説があれば `locationAlt` |
+| `data/lung.json` ほか（`kidney` `pericardium` `bladder`） | 肺経11穴・腎経27穴・心包経9穴・膀胱経67穴。形式は CLAUDE.md の通り（`positions` に左右の位置）。教科書に別説があれば `locationAlt` |
 | `data/kotsudo.json` | 骨度法の区間 |
 | `data/landmarks.json` | 骨度法の物差しの端になる基準点（`kotsudo.json` の `from` / `to` と同じ名前、`side` は R / L / midline）の3D座標 |
 
