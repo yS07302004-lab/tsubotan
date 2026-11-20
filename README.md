@@ -4,6 +4,8 @@
 
 ## 使い方
 
+公開版：https://ys07302004-lab.github.io/tsubotan/ （main に push すると GitHub Actions で自動公開。配置モードは末尾に `?dev`）
+
 ```bash
 npm install
 npm run dev        # http://localhost:5173 （スマホで見るときは同じLANから表示されたNetworkのURL）
