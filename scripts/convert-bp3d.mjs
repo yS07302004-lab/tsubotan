@@ -21,6 +21,8 @@ import draco3d from 'draco3dgltf';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const BP = path.join(ROOT, 'bp3d');
 const OBJ_DIR = path.join(BP, 'partof_BP3D_4.0_obj_99');
+const OBJ_DIR_ISA = path.join(BP, 'isa_BP3D_4.0_obj_99'); // 筋・血管・神経などは is_a 版にしか無い
+const objPath = (f) => [OBJ_DIR, OBJ_DIR_ISA].map((d) => path.join(d, f + '.obj')).find((p) => fs.existsSync(p));
 const OUT = path.join(ROOT, 'public', 'models');
 const USE_DRACO = !process.argv.includes('--no-draco');
 const SCALE = 0.001;
@@ -60,7 +62,7 @@ function filesUnder(tree, ...rootIds) {
     for (const f of elements.get(id) ?? []) files.add(f);
     for (const c of children.get(id) ?? []) stack.push(c);
   }
-  return [...files].filter((f) => fs.existsSync(path.join(OBJ_DIR, f + '.obj'))).sort();
+  return [...files].filter((f) => objPath(f)).sort();
 }
 
 // ---- OBJ 読み込み（v / vn / f のみ。BodyParts3D は三角形・v と vn が同じ番号）
@@ -88,7 +90,7 @@ function merge(files) {
   const nor = [];
   const idx = [];
   for (const f of files) {
-    const m = readObj(path.join(OBJ_DIR, f + '.obj'));
+    const m = readObj(objPath(f));
     const base = pos.length / 3;
     for (const v of m.pos) pos.push(v);
     for (const v of m.nor) nor.push(v);
@@ -211,12 +213,28 @@ async function writeGlb(name, meshName, files, { outerOnly = false, regions = nu
   return info;
 }
 
+// 部品の重心で選ぶ（part_of の木では筋・血管が手足に属していないため）
+function centroid(f) {
+  const m = readObj(objPath(f));
+  let x = 0, y = 0, z = 0;
+  for (let i = 0; i < m.pos.length; i += 3) { x += m.pos[i]; y += m.pos[i + 1]; z += m.pos[i + 2]; }
+  const n = m.pos.length / 3;
+  return [x / n, y / n, z / n];
+}
+// 上肢：体の中心から外（|x|>0.15m）で肩より下、下肢：殿部より下（y<0.85m）で正中から離れた所（骨盤底の筋を除く）
+const inLimbs = ([x, y]) => (Math.abs(x) > 0.15 && y < 1.4) || (y < 0.85 && Math.abs(x) > 0.03);
+const limbFiles = (root) => filesUnder('isa', root).filter((f) => inLimbs(centroid(f)));
+
 fs.mkdirSync(OUT, { recursive: true });
 const regionsFile = path.join(ROOT, 'scripts', 'skin-regions.txt');
 const regions = fs.existsSync(regionsFile) ? [...fs.readFileSync(regionsFile, 'utf8').trim()].map(Number) : null;
 if (!regions) console.warn('scripts/skin-regions.txt が無いので、手掌・足底・爪の色は付けない（python3 scripts/skin_regions.py で作る）');
 const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true, regions }); // skin（外側の面だけ）
 const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591')); // bone organ + costal cartilage
+// 表示を切り替えるレイヤー（アプリで必要になったときだけ読み込む）
+const muscles = await writeGlb('muscles.glb', 'muscles', limbFiles('FMA5022')); // muscle organ（上肢・下肢）
+const arteries = await writeGlb('arteries.glb', 'arteries', limbFiles('FMA50720')); // artery（上肢・下肢）
+const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132')); // nerve（全部。BodyParts3D には主な神経だけ）
 fs.writeFileSync(
   path.join(OUT, 'manifest.json'),
   JSON.stringify(
@@ -225,7 +243,7 @@ fs.writeFileSync(
       license: 'CC BY-SA 2.1 JP',
       coordinate: 'meters, Y-up, anterior=+Z, body right=-X; from BodyParts3D (mm, Z-up, anterior=-Y) via (x,y,z)->(x,z,-y)*0.001',
       draco: USE_DRACO,
-      models: [skin, bones],
+      models: [skin, bones, muscles, arteries, nerves],
     },
     null,
     2,

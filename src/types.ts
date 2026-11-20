@@ -59,3 +59,13 @@ export function findLandmark(list: Landmark[], name: string | undefined, side: S
   if (!name) return undefined;
   return list.find((l) => l.name === name && l.side === side) ?? list.find((l) => l.name === name && l.side === 'midline');
 }
+
+/** 皮膚の下に表示する層（骨・筋・動脈・神経） */
+export type LayerName = 'bones' | 'muscles' | 'arteries' | 'nerves';
+export const LAYERS: { name: LayerName; label: string; color: string }[] = [
+  { name: 'bones', label: '骨', color: '#fbf7ec' },
+  { name: 'muscles', label: '筋', color: '#b8504a' },
+  { name: 'arteries', label: '動脈', color: '#e8443a' },
+  { name: 'nerves', label: '神経', color: '#f2c230' },
+];
+export type LayerState = Record<LayerName, boolean>;

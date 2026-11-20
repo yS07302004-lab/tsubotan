@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { MERIDIANS, MODEL_URL, kotsudoById } from '../data';
 import { SkinSurface } from '../surface';
-import { SIDES, SIDE_LABEL, findLandmark, type Acupoint, type Landmark, type PointRef, type Side, type Vec3 } from '../types';
+import { LAYERS, SIDES, SIDE_LABEL, findLandmark, type Acupoint, type LayerName, type LayerState, type Landmark, type PointRef, type Side, type Vec3 } from '../types';
 
 // 描画順（小さいほど先に描く）
 // 骨(不透明) → 皮膚の深度だけ先に描く → 皮膚の色(半透明, depthWrite off)
@@ -15,7 +15,6 @@ const GHOST_OPACITY = 0.28;
 const LIFT = 0.0025; // 線を皮膚から浮かせる量(m)。皮膚に埋もれないように
 
 const SKIN_COLOR = '#e3b99c';
-const BONE_COLOR = '#fbf7ec';
 const POINT_COLOR = '#d6336c';
 const SELECTED_COLOR = '#ffb000';
 const LINE_COLOR = '#c2255c';
@@ -41,15 +40,27 @@ function firstGeometry(scene: THREE.Object3D): THREE.BufferGeometry {
   return g;
 }
 
+/** 骨・筋・動脈・神経の層。オンにしたときに初めて読み込む（骨は最初から） */
+function Layer({ name }: { name: LayerName }) {
+  const gltf = useGLTF(MODEL_URL[name], MODEL_URL.draco);
+  const geo = useMemo(() => firstGeometry(gltf.scene), [gltf]);
+  const def = LAYERS.find((l) => l.name === name)!;
+  return (
+    <mesh geometry={geo} raycast={() => null}>
+      <meshStandardMaterial color={def.color} roughness={name === 'bones' ? 0.75 : 0.55} />
+    </mesh>
+  );
+}
+
 function Body({
   skinGeo,
-  boneGeo,
+  layers,
   skinOpacity,
   placing,
   onPlace,
 }: {
   skinGeo: THREE.BufferGeometry;
-  boneGeo: THREE.BufferGeometry;
+  layers: LayerState;
   skinOpacity: number;
   placing: boolean;
   onPlace: (p: Vec3) => void;
@@ -62,9 +73,11 @@ function Body({
   };
   return (
     <group>
-      <mesh geometry={boneGeo} raycast={() => null}>
-        <meshStandardMaterial color={BONE_COLOR} roughness={0.75} />
-      </mesh>
+      {LAYERS.filter((l) => layers[l.name]).map((l) => (
+        <Suspense key={l.name} fallback={null}>
+          <Layer name={l.name} />
+        </Suspense>
+      ))}
       {/* 配置モードのタップ判定用。皮膚だけを対象にし、透明度 0% でも当たる（骨には当たらない） */}
       <mesh geometry={skinGeo} visible={false} onClick={placing ? handleClick : undefined} />
       {/* 半透明時：一番手前の皮膚だけを描くため、先に深度だけ書く */}
@@ -394,19 +407,19 @@ export interface ViewerProps {
   view: ViewName | null;
   viewKey: number;
   showLandmarks: boolean;
+  layers: LayerState;
 }
 
 function Scene(props: ViewerProps) {
   const { points, landmarks, selected, onSelect, skinOpacity, placing, onPlace, focus, focusKey, view, viewKey, showLandmarks } = props;
   const skin = useGLTF(MODEL_URL.skin, MODEL_URL.draco);
-  const bones = useGLTF(MODEL_URL.bones, MODEL_URL.draco);
   const skinGeo = useMemo(() => firstGeometry(skin.scene), [skin]);
-  const boneGeo = useMemo(() => firstGeometry(bones.scene), [bones]);
+
   const surface = useMemo(() => new SkinSurface(skinGeo), [skinGeo]);
   const selPoint = selected ? points.find((p) => p.id === selected.id) : undefined;
   return (
     <>
-      <Body skinGeo={skinGeo} boneGeo={boneGeo} skinOpacity={skinOpacity} placing={placing} onPlace={onPlace} />
+      <Body skinGeo={skinGeo} layers={props.layers} skinOpacity={skinOpacity} placing={placing} onPlace={onPlace} />
       {MERIDIANS.flatMap((m) => {
         const mine = points.filter((p) => p.meridian === m.code);
         const lines = m.lines ?? [mine.map((p) => p.id)];

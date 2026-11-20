@@ -46,6 +46,9 @@ export const CREDIT =
 export const MODEL_URL = {
   skin: `${import.meta.env.BASE_URL}models/skin.glb`,
   bones: `${import.meta.env.BASE_URL}models/bones.glb`,
+  muscles: `${import.meta.env.BASE_URL}models/muscles.glb`,
+  arteries: `${import.meta.env.BASE_URL}models/arteries.glb`,
+  nerves: `${import.meta.env.BASE_URL}models/nerves.glb`,
   draco: `${import.meta.env.BASE_URL}draco/`,
 };
 

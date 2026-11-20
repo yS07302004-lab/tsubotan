@@ -113,3 +113,8 @@ button.danger { color: #b02a37; margin-top: 12px; }
 .list-jump { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .list-jump a { font-size: 13px; color: var(--accent); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; text-decoration: none; background: #fff; }
 .list section { margin-bottom: 16px; }
+.layers { display: flex; gap: 6px; margin-top: 6px; }
+.layers button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 4px 0; font-size: 13px; color: var(--muted); }
+.layers button i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.25); opacity: 0.35; }
+.layers button.on { color: var(--ink); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.layers button.on i { opacity: 1; }

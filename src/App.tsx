@@ -5,7 +5,7 @@ import PointList from './components/PointList';
 import PlacementPanel, { allTargets, targetKey } from './components/PlacementPanel';
 import { CREDIT, meridianOf } from './data';
 import { roundVec, usePlacement } from './placement';
-import type { PlaceTarget, PointRef, Vec3 } from './types';
+import { LAYERS, type LayerName, type LayerState, type PlaceTarget, type PointRef, type Vec3 } from './types';
 
 // 配置モードは開発用：開発サーバー、または URL に ?dev を付けたときだけ出す
 const DEV = import.meta.env.DEV || new URLSearchParams(location.search).has('dev');
@@ -15,6 +15,13 @@ export default function App() {
   const [tab, setTab] = useState<'3d' | 'list'>('3d');
   const [selected, setSelected] = useState<PointRef | null>(null);
   const [skinOpacity, setSkinOpacity] = useState(1);
+  const [layers, setLayers] = useState<LayerState>({ bones: true, muscles: false, arteries: false, nerves: false });
+  const toggleLayer = (name: LayerName) => {
+    const on = !layers[name];
+    setLayers((l) => ({ ...l, [name]: on }));
+    // 皮膚が濃いままだと中が見えないので、層をオンにしたら皮膚を薄くする
+    if (on && skinOpacity > 0.6) setSkinOpacity(0.3);
+  };
   const [placing, setPlacing] = useState(false);
   const [target, setTarget] = useState<PlaceTarget>({ kind: 'point', id: points[0].id, side: 'R' });
   const [autoNext, setAutoNext] = useState(true);
@@ -98,6 +105,7 @@ export default function App() {
           view={view.name}
           viewKey={view.key}
           showLandmarks={placing}
+          layers={layers}
         />
         <div className="view-buttons" role="group" aria-label="視点">
           {(
@@ -131,6 +139,14 @@ export default function App() {
           />
           <output>{Math.round(skinOpacity * 100)}%</output>
         </label>
+        <div className="layers" role="group" aria-label="表示する層">
+          {LAYERS.map((l) => (
+            <button key={l.name} className={layers[l.name] ? 'on' : ''} onClick={() => toggleLayer(l.name)} aria-pressed={layers[l.name]}>
+              <i style={{ background: l.color }} />
+              {l.label}
+            </button>
+          ))}
+        </div>
         {placing ? (
           <PlacementPanel
             points={points}
