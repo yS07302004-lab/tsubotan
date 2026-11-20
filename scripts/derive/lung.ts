@@ -1,5 +1,5 @@
 // 手の太陰肺経（右側で計算）。教科書『新版 経絡経穴概論』の部位・取り方に合わせる
-import { V, axis, argmax, argmin, cast, castIn, fromFront, mean, mesh, part, redWhite, region, regionAt, rulerMark, skinVertex, slice, snap, type V3 } from './lib.ts';
+import { V, axis, argmax, argmin, cast, castIn, fromFront, mean, mesh, nailCornerPoint, part, redWhite, rulerMark, slice, type V3 } from './lib.ts';
 
 
 /** 腕の目印（心包経でも使う） */
@@ -73,16 +73,7 @@ export function lung(lm: Record<string, V3>) {
   const radial = mc1.mid.clone().sub(mc2.mid); // 第2中手骨から離れる向き＝橈側
   P.LU10 = redWhite(mc1.mid, mc1.dir, thumbDorsal, radial);
   // 少商：母指爪甲の橈側・近位の角から近位外方1分
-  const dp = axis(part('distal phalanx of right thumb'), hand);
-  const nails: V3[] = [];
-  for (let i = 0; i < region.length; i++) if (region[i] === 2) { const p = skinVertex(i); if (p.distanceTo(dp.mid) < 0.02) nails.push(p); }
-  const tOf = (p: V3) => p.clone().sub(dp.p0).dot(dp.dir);
-  const tMin = Math.min(...nails.map(tOf)), tMax = Math.max(...nails.map(tOf));
-  const side = radial.clone().addScaledVector(dp.dir, -radial.dot(dp.dir)).normalize();
-  const corner = argmax(nails.filter((p) => tOf(p) < tMin + (tMax - tMin) * 0.3), (p) => p.dot(side));
-  let lu11 = snap(corner.clone().addScaledVector(dp.dir, -0.002).addScaledVector(side, 0.002));
-  for (let k = 0; k < 6 && regionAt(lu11) === 2; k++) lu11 = snap(lu11.addScaledVector(side, 0.001)); // 爪の上に乗ったら外へずらす
-  P.LU11 = lu11;
+  P.LU11 = nailCornerPoint('thumb', 'lateral');
   void cast;
-  return { P, L, nailCount: nails.length };
+  return { P, L };
 }

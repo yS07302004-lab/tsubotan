@@ -118,3 +118,6 @@ button.danger { color: #b02a37; margin-top: 12px; }
 .layers button i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.25); opacity: 0.35; }
 .layers button.on { color: var(--ink); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .layers button.on i { opacity: 1; }
+.layers.meridians button { font-size: 12px; }
+.chips li.struct { display: flex; align-items: center; gap: 4px; border-width: 1.5px; }
+.chips li.struct i { width: 9px; height: 9px; border-radius: 2px; }

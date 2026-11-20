@@ -181,3 +181,18 @@ export function icsY(n: number, x: number): number {
   };
   return (Math.min(...ant(n).map((p) => p.y)) + Math.max(...ant(n + 1).map((p) => p.y))) / 2;
 }
+
+// ---- 爪（scripts/nails.py が作る形）。井穴などの「爪甲角の近位外方1分」に使う
+const NAILS: { side: 'R' | 'L'; digit: string; cornerLateral: number[]; cornerMedial: number[]; axis: number[]; lateralDir: number[] }[] =
+  JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'nails.json'), 'utf8')).nails;
+/**
+ * 爪甲の根元の角から「近位外方1分」（約1.5mm ずつ近位と外へ）の皮膚上の点。
+ * which='lateral' は体の外側（手は橈側＝母指側、足は小指側）、'medial' はその反対
+ */
+export function nailCornerPoint(digit: string, which: 'lateral' | 'medial', side: 'R' | 'L' = 'R', fen = 0.0015): V3 {
+  const n = NAILS.find((x) => x.side === side && x.digit === digit);
+  if (!n) throw new Error('nail not found: ' + digit);
+  const c = V(...(which === 'lateral' ? n.cornerLateral : n.cornerMedial) as [number, number, number]);
+  const lat = V(...(n.lateralDir as [number, number, number])).multiplyScalar(which === 'lateral' ? 1 : -1);
+  return snap(c.addScaledVector(V(...(n.axis as [number, number, number])), -fen).addScaledVector(lat, fen));
+}

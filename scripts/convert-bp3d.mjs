@@ -231,10 +231,96 @@ const regions = fs.existsSync(regionsFile) ? [...fs.readFileSync(regionsFile, 'u
 if (!regions) console.warn('scripts/skin-regions.txt が無いので、手掌・足底・爪の色は付けない（python3 scripts/skin_regions.py で作る）');
 const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true, regions }); // skin（外側の面だけ）
 const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591')); // bone organ + costal cartilage
+// ---- 目印の強調表示用：data/structures.json に出てくる部品を、部品ごとの別メッシュ（ノード名＝部品名）で1つの glb に入れる
+const partFiles = new Map();
+for (const tree of ['isa', 'partof'])
+  for (const [, n, f] of readTsv(`${tree}_element_parts.txt`)) {
+    if (!partFiles.has(n)) partFiles.set(n, new Set());
+    partFiles.get(n).add(f.trim());
+  }
+async function writeStructures() {
+  const S = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'structures.json'), 'utf8'));
+  const partNames = new Set();
+  for (const { parts } of Object.values(S))
+    for (const p of parts) for (const side of ['right', 'left']) partNames.add(p.replaceAll('{side}', side));
+  const doc = new Document();
+  doc.getRoot().getAsset().copyright = CREDIT;
+  const buf = doc.createBuffer();
+  const scene = doc.createScene();
+  let total = 0;
+  for (const name of [...partNames].sort()) {
+    const files = [...(partFiles.get(name) ?? [])].filter((f) => objPath(f)).sort();
+    if (!files.length) throw new Error('part not found: ' + name);
+    const m = merge(files);
+    total += m.pos.length / 3;
+    const prim = doc
+      .createPrimitive()
+      .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(m.pos).setBuffer(buf))
+      .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(m.nor).setBuffer(buf))
+      .setIndices(doc.createAccessor().setType('SCALAR').setArray(m.idx).setBuffer(buf));
+    scene.addChild(doc.createNode(name).setMesh(doc.createMesh(name).addPrimitive(prim)));
+  }
+  const io = new NodeIO().registerExtensions([KHRDracoMeshCompression]).registerDependencies({
+    'draco3d.encoder': await draco3d.createEncoderModule(),
+    'draco3d.decoder': await draco3d.createDecoderModule(),
+  });
+  if (USE_DRACO) await doc.transform(draco({ quantizePosition: 14, quantizeNormal: 10 }));
+  const out = path.join(OUT, 'structures.glb');
+  await io.write(out, doc);
+  const info = { file: 'structures.glb', parts: partNames.size, vertices: total, bytes: fs.statSync(out).size };
+  console.log(info);
+  return info;
+}
+
+// ---- 爪：scripts/nails.py が作った形（皮膚の上に重ねる薄い板）を1つのメッシュにする
+async function writeNails() {
+  const file = path.join(ROOT, 'scripts', 'nails.json');
+  if (!fs.existsSync(file)) {
+    console.warn('scripts/nails.json が無いので爪は作らない（python3 scripts/nails.py で作る）');
+    return null;
+  }
+  const { nails } = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const pos = [];
+  const idx = [];
+  for (const n of nails) {
+    const base = pos.length / 3;
+    for (const p of n.positions) pos.push(...p);
+    for (const i of n.indices) idx.push(i + base);
+  }
+  // 法線：面の法線を頂点に足し合わせる
+  const nor = new Float32Array(pos.length);
+  for (let k = 0; k < idx.length; k += 3) {
+    const [a, b, c] = [idx[k], idx[k + 1], idx[k + 2]].map((i) => pos.slice(i * 3, i * 3 + 3));
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    for (const i of [idx[k], idx[k + 1], idx[k + 2]]) for (let j = 0; j < 3; j++) nor[i * 3 + j] += n[j];
+  }
+  for (let i = 0; i < nor.length; i += 3) {
+    const l = Math.hypot(nor[i], nor[i + 1], nor[i + 2]) || 1;
+    nor[i] /= l; nor[i + 1] /= l; nor[i + 2] /= l;
+  }
+  const doc = new Document();
+  doc.getRoot().getAsset().copyright = CREDIT;
+  const buf = doc.createBuffer();
+  const prim = doc
+    .createPrimitive()
+    .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(new Float32Array(pos)).setBuffer(buf))
+    .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(nor).setBuffer(buf))
+    .setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(buf));
+  doc.createScene().addChild(doc.createNode('nails').setMesh(doc.createMesh('nails').addPrimitive(prim)));
+  const out = path.join(OUT, 'nails.glb');
+  await new NodeIO().write(out, doc);
+  const info = { file: 'nails.glb', nails: nails.length, bytes: fs.statSync(out).size };
+  console.log(info);
+  return info;
+}
+
 // 表示を切り替えるレイヤー（アプリで必要になったときだけ読み込む）
 const muscles = await writeGlb('muscles.glb', 'muscles', limbFiles('FMA5022')); // muscle organ（上肢・下肢）
 const arteries = await writeGlb('arteries.glb', 'arteries', limbFiles('FMA50720')); // artery（上肢・下肢）
 const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132')); // nerve（全部。BodyParts3D には主な神経だけ）
+const structures = await writeStructures();
+const nailsInfo = await writeNails();
 fs.writeFileSync(
   path.join(OUT, 'manifest.json'),
   JSON.stringify(
@@ -243,7 +329,7 @@ fs.writeFileSync(
       license: 'CC BY-SA 2.1 JP',
       coordinate: 'meters, Y-up, anterior=+Z, body right=-X; from BodyParts3D (mm, Z-up, anterior=-Y) via (x,y,z)->(x,z,-y)*0.001',
       draco: USE_DRACO,
-      models: [skin, bones, muscles, arteries, nerves],
+      models: [skin, bones, muscles, arteries, nerves, structures, nailsInfo].filter(Boolean),
     },
     null,
     2,

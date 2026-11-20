@@ -9,6 +9,7 @@ import type { Acupoint, KotsudoSegment, Landmark } from './types';
 export interface Meridian {
   code: string;
   name: string;
+  short: string; // ボタン用の短い名前
   file: string; // 書き出すときのファイル名
   points: Acupoint[];
   /** 走行線のつなぎ方（穴の id の並び）。無ければ番号順に1本でつなぐ */
@@ -21,11 +22,12 @@ function range(code: string, a: number, b: number) {
 }
 
 export const MERIDIANS: Meridian[] = [
-  { code: 'LU', name: '手の太陰肺経', file: 'lung.json', points: lungJson as unknown as Acupoint[] },
-  { code: 'KI', name: '足の少陰腎経', file: 'kidney.json', points: kidneyJson as unknown as Acupoint[] },
-  { code: 'PC', name: '手の厥陰心包経', file: 'pericardium.json', points: pericardiumJson as unknown as Acupoint[] },
+  { code: 'LU', short: '肺経', name: '手の太陰肺経', file: 'lung.json', points: lungJson as unknown as Acupoint[] },
+  { code: 'KI', short: '腎経', name: '足の少陰腎経', file: 'kidney.json', points: kidneyJson as unknown as Acupoint[] },
+  { code: 'PC', short: '心包経', name: '手の厥陰心包経', file: 'pericardium.json', points: pericardiumJson as unknown as Acupoint[] },
   {
     code: 'BL',
+    short: '膀胱経',
     name: '足の太陽膀胱経',
     file: 'bladder.json',
     points: bladderJson as unknown as Acupoint[],
@@ -49,6 +51,8 @@ export const MODEL_URL = {
   muscles: `${import.meta.env.BASE_URL}models/muscles.glb`,
   arteries: `${import.meta.env.BASE_URL}models/arteries.glb`,
   nerves: `${import.meta.env.BASE_URL}models/nerves.glb`,
+  structures: `${import.meta.env.BASE_URL}models/structures.glb`,
+  nails: `${import.meta.env.BASE_URL}models/nails.glb`,
   draco: `${import.meta.env.BASE_URL}draco/`,
 };
 

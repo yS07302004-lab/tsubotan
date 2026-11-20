@@ -600,6 +600,6 @@
     "kotsudo": null,
     "tags": ["井金穴"],
     "etymology": { "text": "", "status": "draft", "sources": [] },
-    "positions": {"R": [-0.1731, -0.0617, 0.1768], "L": [0.1722, -0.0623, 0.1768]}, "positionStatus": "draft"
+    "positions": {"R": [-0.17, -0.0596, 0.1796], "L": [0.1696, -0.0601, 0.1794]}, "positionStatus": "draft"
   }
 ]

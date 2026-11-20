@@ -2,7 +2,7 @@
 // 頭：眉間〜大椎を1尺8寸として前髪際（眉間の上3寸）・後髪際（大椎の上3寸）を決め、前髪際〜後髪際1尺2寸。横は両乳様突起間9寸
 // 背：各棘突起下縁の高さ、後正中線の外方1寸5分・3寸（肩甲棘内端縁間6寸）。仙骨：後仙骨孔（上後腸骨棘の高さから）
 // 下肢：殿溝〜膝窩1尺4寸、膝窩〜外果尖1尺6寸
-import { V, argmax, argmin, axis, cast, castIn, fromBack, fromFront, mean, mesh, part, redWhite, region, regionAt, rulerMark, skinVertex, slice, snap, S, type V3 } from './lib.ts';
+import { V, argmax, argmin, axis, cast, castIn, fromBack, fromFront, mean, mesh, nailCornerPoint, part, redWhite, rulerMark, slice, S, type V3 } from './lib.ts';
 
 const ORD = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth'];
 const LATERAL = V(-1, 0, 0); // 右の外側
@@ -194,18 +194,6 @@ export function bladder(lm: Record<string, V3>) {
   const pp5 = axis(part('proximal phalanx of right little toe'), foot);
   P.BL66 = redWhite(pp5.p0.clone().lerp(pp5.p1, 0.25), pp5.dir, LATERAL, DOWN);
   // 至陰：足の第5指、爪甲の外側・近位の角から近位外方1分
-  const dp = axis(part('distal phalanx of right little toe'), foot);
-  const nails: V3[] = [];
-  for (let i = 0; i < region.length; i++) if (region[i] === 2) { const p = skinVertex(i); if (p.distanceTo(dp.mid) < 0.015) nails.push(p); }
-  const tOf = (p: V3) => p.clone().sub(dp.p0).dot(dp.dir);
-  const side = LATERAL.clone().addScaledVector(dp.dir, -LATERAL.dot(dp.dir)).normalize();
-  let bl67: V3;
-  if (nails.length) {
-    const tMin = Math.min(...nails.map(tOf)), tMax = Math.max(...nails.map(tOf));
-    const corner = argmax(nails.filter((p) => tOf(p) < tMin + (tMax - tMin) * 0.35), (p) => p.dot(side));
-    bl67 = snap(corner.clone().addScaledVector(dp.dir, -0.0015).addScaledVector(side, 0.0015));
-    for (let k = 0; k < 6 && regionAt(bl67) === 2; k++) bl67 = snap(bl67.addScaledVector(side, 0.001));
-  } else bl67 = castIn(dp.mid, side, 0.03);
-  P.BL67 = bl67;
+  P.BL67 = nailCornerPoint('little toe', 'lateral');
   return { P, L, mid: M };
 }

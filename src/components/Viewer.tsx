@@ -1,10 +1,11 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { Html, Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { MERIDIANS, MODEL_URL, kotsudoById } from '../data';
 import { SkinSurface } from '../surface';
+import { KIND_COLOR, STRUCTURES, structureParts } from '../structures';
 import { LAYERS, SIDES, SIDE_LABEL, findLandmark, type Acupoint, type LayerName, type LayerState, type Landmark, type PointRef, type Side, type Vec3 } from '../types';
 
 // 描画順（小さいほど先に描く）
@@ -12,6 +13,8 @@ import { LAYERS, SIDES, SIDE_LABEL, findLandmark, type Acupoint, type LayerName,
 // → 体の裏側にある線・点を薄く（depthTest off）→ 手前に見えている線・点（depthTest on）
 const ORDER = { skinDepth: 1, skinColor: 2, ghost: 9, line: 10, ruler: 11, point: 12 };
 const GHOST_OPACITY = 0.28;
+/** 体の向こう側の線・点を薄く透かして描くか */
+const GhostCtx = createContext(true);
 const LIFT = 0.0025; // 線を皮膚から浮かせる量(m)。皮膚に埋もれないように
 
 const SKIN_COLOR = '#e3b99c';
@@ -20,7 +23,8 @@ const SELECTED_COLOR = '#ffb000';
 const LINE_COLOR = '#c2255c';
 const RULER_COLOR = '#1971c2';
 
-export const INITIAL_CAMERA = { position: [-0.55, 1.3, 1.25] as Vec3, target: [-0.17, 1.1, 0.08] as Vec3 };
+// 起動時は全身を正面から
+export const INITIAL_CAMERA = { position: [0, 0.8, 3.4] as Vec3, target: [0, 0.8, 0.1] as Vec3 };
 
 const WHOLE_BODY = { position: [0, 0.8, 3.4] as Vec3, target: [0, 0.8, 0.1] as Vec3 };
 
@@ -38,6 +42,30 @@ function firstGeometry(scene: THREE.Object3D): THREE.BufferGeometry {
   });
   if (!g) throw new Error('mesh not found');
   return g;
+}
+
+/** 爪（皮膚の上に重ねる薄い板）。皮膚と同じ透明度で描く */
+function Nails({ opacity }: { opacity: number }) {
+  const gltf = useGLTF(MODEL_URL.nails, MODEL_URL.draco);
+  const geo = useMemo(() => firstGeometry(gltf.scene), [gltf]);
+  const opaque = opacity >= 0.999;
+  if (opacity <= 0.001) return null;
+  return (
+    <mesh geometry={geo} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
+      <meshStandardMaterial
+        key={opaque ? 'o' : 't'}
+        color="#f7dcd8"
+        roughness={0.35}
+        transparent={!opaque}
+        opacity={opacity}
+        depthWrite={opaque}
+        polygonOffset
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-2}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
 }
 
 /** 骨・筋・動脈・神経の層。オンにしたときに初めて読み込む（骨は最初から） */
@@ -78,6 +106,9 @@ function Body({
           <Layer name={l.name} />
         </Suspense>
       ))}
+      <Suspense fallback={null}>
+        <Nails opacity={skinOpacity} />
+      </Suspense>
       {/* 配置モードのタップ判定用。皮膚だけを対象にし、透明度 0% でも当たる（骨には当たらない） */}
       <mesh geometry={skinGeo} visible={false} onClick={placing ? handleClick : undefined} />
       {/* 半透明時：一番手前の皮膚だけを描くため、先に深度だけ書く */}
@@ -118,22 +149,25 @@ function SurfaceLine({
   dashed?: boolean;
   segments?: boolean;
 }) {
+  const ghost = useContext(GhostCtx);
   if (points.length < 2) return null;
   const dash = dashed ? { dashed: true, dashSize: 0.006, gapSize: 0.004 } : {};
   return (
     <>
-      <Line
-        points={points}
-        segments={segments}
-        color={color}
-        lineWidth={width}
-        renderOrder={ORDER.ghost}
-        depthTest={false}
-        depthWrite={false}
-        transparent
-        opacity={GHOST_OPACITY}
-        {...dash}
-      />
+      {ghost && (
+        <Line
+          points={points}
+          segments={segments}
+          color={color}
+          lineWidth={width}
+          renderOrder={ORDER.ghost}
+          depthTest={false}
+          depthWrite={false}
+          transparent
+          opacity={GHOST_OPACITY}
+          {...dash}
+        />
+      )}
       {/* polygonOffset で手前へ少しずらし、太い線が皮膚に食い込んで途切れるのを防ぐ */}
       <Line
         points={points}
@@ -182,6 +216,7 @@ function PointMarker({
     // 皮膚に半分埋もれないよう、法線方向に少しだけ浮かせる
     return p.addScaledVector(surface.closest(p).normal, 0.0008);
   }, [position, surface]);
+  const showGhost = useContext(GhostCtx);
   const solid = useRef<THREE.Mesh>(null);
   const ghost = useRef<THREE.Mesh>(null);
   const hit = useRef<THREE.Mesh>(null);
@@ -189,10 +224,12 @@ function PointMarker({
   const color = selected ? SELECTED_COLOR : POINT_COLOR;
   return (
     <group position={pos}>
-      <mesh ref={ghost} renderOrder={ORDER.ghost} raycast={() => null}>
-        <sphereGeometry args={[1, 16, 12]} />
-        <meshBasicMaterial color={color} depthTest={false} depthWrite={false} transparent opacity={GHOST_OPACITY + 0.1} />
-      </mesh>
+      {showGhost && (
+        <mesh ref={ghost} renderOrder={ORDER.ghost} raycast={() => null}>
+          <sphereGeometry args={[1, 16, 12]} />
+          <meshBasicMaterial color={color} depthTest={false} depthWrite={false} transparent opacity={GHOST_OPACITY + 0.1} />
+        </mesh>
+      )}
       <mesh ref={solid} renderOrder={ORDER.point} raycast={() => null}>
         <sphereGeometry args={[1, 16, 12]} />
         <meshBasicMaterial color={color} depthWrite={false} transparent />
@@ -222,6 +259,120 @@ function PointMarker({
           </div>
         </Html>
       )}
+    </group>
+  );
+}
+
+/**
+ * 選んだ穴の目印（骨・筋・腱・動脈）を色分けして強調する。皮膚の上からでも見えるよう、
+ * 実体（皮膚の下）に加えて、半透明の重ね描きもする
+ */
+function StructureHighlight({ point, side }: { point: Acupoint; side: Side }) {
+  const gltf = useGLTF(MODEL_URL.structures, MODEL_URL.draco);
+  const items = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { geo: THREE.BufferGeometry; color: string }[] = [];
+    for (const lm of point.landmarks) {
+      const kind = STRUCTURES[lm]?.kind;
+      if (!kind) continue;
+      for (const name of structureParts(lm, side)) {
+        if (seen.has(name)) continue;
+        seen.add(name);
+        const obj = gltf.scene.getObjectByName(THREE.PropertyBinding.sanitizeNodeName(name)) as THREE.Mesh | undefined;
+        const mesh = obj && ((obj as THREE.Mesh).isMesh ? obj : (obj.children.find((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh | undefined));
+        if (mesh) out.push({ geo: (mesh as THREE.Mesh).geometry, color: KIND_COLOR[kind] });
+      }
+    }
+    return out;
+  }, [gltf, point, side]);
+  return (
+    <group>
+      {items.map((it, i) => (
+        <group key={i}>
+          <mesh geometry={it.geo} raycast={() => null}>
+            <meshStandardMaterial color={it.color} emissive={it.color} emissiveIntensity={0.25} roughness={0.5} />
+          </mesh>
+          <mesh geometry={it.geo} renderOrder={ORDER.ghost - 1} raycast={() => null}>
+            <meshBasicMaterial color={it.color} transparent opacity={0.35} depthTest={false} depthWrite={false} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+interface MarkerItem {
+  point: Acupoint;
+  side: Side;
+  position: Vec3;
+}
+
+/**
+ * 選んでいない経穴をまとめて描く（InstancedMesh で描画の回数を減らし、起動・切り替えを軽くする）。
+ * 手前は濃く、体の向こう側は薄く。当たり判定は見た目より大きい球
+ */
+function PointMarkers({
+  items,
+  surface,
+  placing,
+  onSelect,
+}: {
+  items: MarkerItem[];
+  surface: SkinSurface;
+  placing: boolean;
+  onSelect: (ref: PointRef) => void;
+}) {
+  const showGhost = useContext(GhostCtx);
+  const pos = useMemo(
+    () =>
+      items.map((it) => {
+        const p = new THREE.Vector3(...it.position);
+        return p.addScaledVector(surface.closest(p).normal, 0.0008); // 皮膚に半分埋もれないよう少し浮かせる
+      }),
+    [items, surface],
+  );
+  const geo = useMemo(() => new THREE.SphereGeometry(1, 12, 8), []);
+  const hitGeo = useMemo(() => new THREE.SphereGeometry(2.6, 6, 4), []);
+  const solid = useRef<THREE.InstancedMesh>(null);
+  const ghost = useRef<THREE.InstancedMesh>(null);
+  const hit = useRef<THREE.InstancedMesh>(null);
+  const m = useMemo(() => new THREE.Matrix4(), []);
+  useFrame(({ camera }) => {
+    for (let i = 0; i < pos.length; i++) {
+      const sc = Math.max(0.0015, camera.position.distanceTo(pos[i]) * 0.006);
+      m.makeScale(sc, sc, sc).setPosition(pos[i]);
+      solid.current?.setMatrixAt(i, m);
+      ghost.current?.setMatrixAt(i, m);
+      hit.current?.setMatrixAt(i, m);
+    }
+    for (const r of [solid, ghost, hit]) if (r.current) r.current.instanceMatrix.needsUpdate = true;
+    if (hit.current) hit.current.boundingSphere = null; // 大きさが変わるので当たり判定の範囲を作り直す
+  });
+  if (!items.length) return null;
+  return (
+    <group>
+      {showGhost && (
+        <instancedMesh ref={ghost} args={[geo, undefined, items.length]} renderOrder={ORDER.ghost} frustumCulled={false} raycast={() => null}>
+          <meshBasicMaterial color={POINT_COLOR} depthTest={false} depthWrite={false} transparent opacity={GHOST_OPACITY + 0.1} />
+        </instancedMesh>
+      )}
+      <instancedMesh ref={solid} args={[geo, undefined, items.length]} renderOrder={ORDER.point} frustumCulled={false} raycast={() => null}>
+        <meshBasicMaterial color={POINT_COLOR} depthWrite={false} transparent />
+      </instancedMesh>
+      <instancedMesh
+        ref={hit}
+        args={[hitGeo, undefined, items.length]}
+        visible={false}
+        onClick={
+          placing
+            ? undefined
+            : (e) => {
+                e.stopPropagation();
+                const it = e.instanceId !== undefined ? items[e.instanceId] : undefined;
+                if (it) onSelect({ id: it.point.id, side: it.side });
+              }
+        }
+      />
     </group>
   );
 }
@@ -408,6 +559,9 @@ export interface ViewerProps {
   viewKey: number;
   showLandmarks: boolean;
   layers: LayerState;
+  /** 表示する経絡（コード）。選んでいる穴の経絡はいつも表示する */
+  visibleMeridians: string[];
+  showGhost: boolean;
 }
 
 function Scene(props: ViewerProps) {
@@ -417,10 +571,25 @@ function Scene(props: ViewerProps) {
 
   const surface = useMemo(() => new SkinSurface(skinGeo), [skinGeo]);
   const selPoint = selected ? points.find((p) => p.id === selected.id) : undefined;
+  const shown = new Set(props.visibleMeridians);
+  if (selPoint) shown.add(selPoint.meridian);
+  const visiblePoints = points.filter((p) => shown.has(p.meridian));
+  const markerItems = useMemo(
+    () =>
+      visiblePoints.flatMap((p) =>
+        SIDES.filter((side) => p.positions[side] && !(selected?.id === p.id && selected.side === side)).map((side) => ({
+          point: p,
+          side,
+          position: p.positions[side] as Vec3,
+        })),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [points, props.visibleMeridians.join(','), selPoint?.meridian, selected?.id, selected?.side],
+  );
   return (
     <>
       <Body skinGeo={skinGeo} layers={props.layers} skinOpacity={skinOpacity} placing={placing} onPlace={onPlace} />
-      {MERIDIANS.flatMap((m) => {
+      {MERIDIANS.filter((m) => shown.has(m.code)).flatMap((m) => {
         const mine = points.filter((p) => p.meridian === m.code);
         const lines = m.lines ?? [mine.map((p) => p.id)];
         return lines.flatMap((ids, li) =>
@@ -434,20 +603,23 @@ function Scene(props: ViewerProps) {
           )),
         );
       })}
+      {!placing && selPoint && selected && (
+        <Suspense fallback={null}>
+          <StructureHighlight point={selPoint} side={selected.side} />
+        </Suspense>
+      )}
       {!placing && selected && <KotsudoRuler point={selPoint} side={selected.side} landmarks={landmarks} surface={surface} />}
-      {points.flatMap((p) =>
-        SIDES.filter((side) => p.positions[side]).map((side) => (
-          <PointMarker
-            key={`${p.id}-${side}`}
-            point={p}
-            side={side}
-            position={p.positions[side] as Vec3}
-            surface={surface}
-            selected={selected?.id === p.id && selected.side === side}
-            placing={placing}
-            onSelect={onSelect}
-          />
-        )),
+      <PointMarkers key={markerItems.length} items={markerItems} surface={surface} placing={placing} onSelect={onSelect} />
+      {selPoint && selected && selPoint.positions[selected.side] && (
+        <PointMarker
+          point={selPoint}
+          side={selected.side}
+          position={selPoint.positions[selected.side] as Vec3}
+          surface={surface}
+          selected
+          placing={placing}
+          onSelect={onSelect}
+        />
       )}
       {showLandmarks &&
         landmarks
@@ -469,7 +641,9 @@ export default function Viewer(props: ViewerProps) {
       <color attach="background" args={['#f6f3ee']} />
       <Lights />
       <Suspense fallback={<Html center>読み込み中…</Html>}>
-        <Scene {...props} />
+        <GhostCtx.Provider value={props.showGhost}>
+          <Scene {...props} />
+        </GhostCtx.Provider>
       </Suspense>
       <OrbitControls makeDefault target={INITIAL_CAMERA.target} enableDamping minDistance={0.08} maxDistance={4} />
     </Canvas>
@@ -477,4 +651,4 @@ export default function Viewer(props: ViewerProps) {
 }
 
 useGLTF.preload(MODEL_URL.skin, MODEL_URL.draco);
-useGLTF.preload(MODEL_URL.bones, MODEL_URL.draco);
+useGLTF.preload(MODEL_URL.nails, MODEL_URL.draco);

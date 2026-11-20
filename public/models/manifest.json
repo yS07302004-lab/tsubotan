@@ -9,7 +9,7 @@
       "vertices": 54949,
       "triangles": 109183,
       "parts": 1,
-      "bytes": 260448,
+      "bytes": 258756,
       "bounds_m": {
         "min": [
           -0.3341189920902252,
@@ -98,6 +98,17 @@
           0.18547600507736206
         ]
       }
+    },
+    {
+      "file": "structures.glb",
+      "parts": 123,
+      "vertices": 262576,
+      "bytes": 1527640
+    },
+    {
+      "file": "nails.glb",
+      "nails": 20,
+      "bytes": 163212
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { kotsudoById, meridianOf } from '../data';
+import { KIND_COLOR, KIND_LABEL, STRUCTURES } from '../structures';
 import { SIDES, SIDE_LABEL, findLandmark, type Acupoint, type Landmark, type Side } from '../types';
 
 interface Props {
@@ -96,9 +97,15 @@ export default function PointCard({ point, side, onSide, landmarks, onClose, onP
 
       <h3>目印</h3>
       <ul className="chips">
-        {point.landmarks.map((l) => (
-          <li key={l}>{l}</li>
-        ))}
+        {point.landmarks.map((l) => {
+          const kind = STRUCTURES[l]?.kind;
+          return (
+            <li key={l} className={kind ? 'struct' : ''} style={kind ? { borderColor: KIND_COLOR[kind] } : undefined} title={kind ? `3Dで${KIND_LABEL[kind]}を色付けして表示中` : undefined}>
+              {kind && <i style={{ background: KIND_COLOR[kind] }} />}
+              {l}
+            </li>
+          );
+        })}
       </ul>
 
       {seg && (

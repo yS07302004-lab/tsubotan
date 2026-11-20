@@ -3,7 +3,7 @@ import Viewer, { type ViewName } from './components/Viewer';
 import PointCard from './components/PointCard';
 import PointList from './components/PointList';
 import PlacementPanel, { allTargets, targetKey } from './components/PlacementPanel';
-import { CREDIT, meridianOf } from './data';
+import { CREDIT, MERIDIANS, meridianOf } from './data';
 import { roundVec, usePlacement } from './placement';
 import { LAYERS, type LayerName, type LayerState, type PlaceTarget, type PointRef, type Vec3 } from './types';
 
@@ -15,7 +15,12 @@ export default function App() {
   const [tab, setTab] = useState<'3d' | 'list'>('3d');
   const [selected, setSelected] = useState<PointRef | null>(null);
   const [skinOpacity, setSkinOpacity] = useState(1);
-  const [layers, setLayers] = useState<LayerState>({ bones: true, muscles: false, arteries: false, nerves: false });
+  // 起動を軽くするため、最初は皮膚だけ。骨・経絡はボタンで表示する
+  const [layers, setLayers] = useState<LayerState>({ bones: false, muscles: false, arteries: false, nerves: false });
+  const [visibleMeridians, setVisibleMeridians] = useState<string[]>([]);
+  const [showGhost, setShowGhost] = useState(true);
+  const toggleMeridian = (code: string) =>
+    setVisibleMeridians((v) => (v.includes(code) ? v.filter((c) => c !== code) : [...v, code]));
   const toggleLayer = (name: LayerName) => {
     const on = !layers[name];
     setLayers((l) => ({ ...l, [name]: on }));
@@ -37,6 +42,7 @@ export default function App() {
     const side = p?.positions[ref.side] ? ref.side : p?.positions.R ? 'R' : p?.positions.L ? 'L' : ref.side;
     setSelected({ id: ref.id, side });
     setTab('3d');
+    if (p && !visibleMeridians.includes(p.meridian)) setVisibleMeridians((v) => [...v, p.meridian]);
     const pos = p?.positions[side];
     if (pos) setFocus((f) => ({ pos, key: f.key + 1 }));
   };
@@ -67,7 +73,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>
-          ツボ単<small>{selPoint ? meridianOf(selPoint.meridian)?.name : '肺経・腎経'}</small>
+          ツボ単<small>{selPoint ? meridianOf(selPoint.meridian)?.name : ''}</small>
         </h1>
         <nav className="tabs">
           <button className={tab === '3d' ? 'active' : ''} onClick={() => setTab('3d')}>
@@ -106,6 +112,8 @@ export default function App() {
           viewKey={view.key}
           showLandmarks={placing}
           layers={layers}
+          visibleMeridians={visibleMeridians}
+          showGhost={showGhost}
         />
         <div className="view-buttons" role="group" aria-label="視点">
           {(
@@ -139,6 +147,16 @@ export default function App() {
           />
           <output>{Math.round(skinOpacity * 100)}%</output>
         </label>
+        <div className="layers meridians" role="group" aria-label="表示する経絡">
+          {MERIDIANS.map((m) => (
+            <button key={m.code} className={visibleMeridians.includes(m.code) ? 'on' : ''} onClick={() => toggleMeridian(m.code)} aria-pressed={visibleMeridians.includes(m.code)}>
+              {m.short}
+            </button>
+          ))}
+          <button className={showGhost ? 'on' : ''} onClick={() => setShowGhost((v) => !v)} aria-pressed={showGhost} title="体の向こう側の経絡・経穴を薄く表示">
+            透視
+          </button>
+        </div>
         <div className="layers" role="group" aria-label="表示する層">
           {LAYERS.map((l) => (
             <button key={l.name} className={layers[l.name] ? 'on' : ''} onClick={() => toggleLayer(l.name)} aria-pressed={layers[l.name]}>

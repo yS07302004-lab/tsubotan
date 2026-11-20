@@ -98,7 +98,7 @@ for side in ['right', 'left']:
         dorsal = hint - a * (hint @ a); dorsal /= np.linalg.norm(dorsal)
         dorsals[digit] = (dorsal, idx)
         nail = (t > 0.3) & (t < 0.97) & (rn @ dorsal > np.cos(np.radians(60))) & (SN[idx] @ dorsal > 0.2)
-        cls[idx[nail]] = 2
+        # 爪は scripts/nails.py で別の形として作るので、ここでは塗らない
         summary.append((side, digit, int(nail.sum())))
     # 手掌：手の骨の近くの皮膚で、法線が掌側を向く所
     palm_dir = -np.mean([dorsals[d][0] for d in FINGERS[1:]], axis=0); palm_dir /= np.linalg.norm(palm_dir)
@@ -142,7 +142,8 @@ for _ in range(4):
         new[v] = 1 if (ns == 1).mean() + (0.5 if cls[v] == 1 else 0) / len(ns) > 0.5 else 0
     cls = new
 
-out = os.path.join(ROOT, 'scripts', 'skin-regions.txt')
-open(out, 'w').write(''.join(map(str, cls.tolist())))
-print('nails:', summary)
-print('counts', np.bincount(cls), '->', out)
+if __name__ == '__main__':
+    out = os.path.join(ROOT, 'scripts', 'skin-regions.txt')
+    open(out, 'w').write(''.join(map(str, cls.tolist())))
+    print('nails:', summary)
+    print('counts', np.bincount(cls), '->', out)
