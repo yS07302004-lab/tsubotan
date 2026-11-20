@@ -17,6 +17,8 @@ import { Document, NodeIO } from '@gltf-transform/core';
 import { KHRDracoMeshCompression } from '@gltf-transform/extensions';
 import { draco } from '@gltf-transform/functions';
 import draco3d from 'draco3dgltf';
+import * as THREE from 'three';
+import { MeshBVH } from 'three-mesh-bvh';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const BP = path.join(ROOT, 'bp3d');
@@ -171,13 +173,14 @@ function bounds(p) {
   return { min, max };
 }
 
-async function writeGlb(name, meshName, files, { outerOnly = false, regions = null } = {}) {
+async function writeGlb(name, meshName, files, { outerOnly = false, regions = null, clamp = false } = {}) {
   const raw = merge(files);
   if (regions) {
     if (regions.length !== raw.pos.length / 3) throw new Error(`skin-regions.txt の長さ ${regions.length} が頂点数 ${raw.pos.length / 3} と合わない`);
     raw.cls = regions;
   }
-  const m = outerOnly ? keepOuterShell(raw) : raw;
+  const m0 = outerOnly ? keepOuterShell(raw) : raw;
+  const m = clamp ? clampInsideSkin(m0, name, clamp === 'soft' ? CLAMP_MARGIN_SOFT : CLAMP_MARGIN) : m0;
   const doc = new Document();
   doc.getRoot().getAsset().copyright = CREDIT;
   const buf = doc.createBuffer();
@@ -225,12 +228,52 @@ function centroid(f) {
 const inLimbs = ([x, y]) => (Math.abs(x) > 0.15 && y < 1.4) || (y < 0.85 && Math.abs(x) > 0.03);
 const limbFiles = (root) => filesUnder('isa', root).filter((f) => inLimbs(centroid(f)));
 
+// ---- 皮膚の内側に収める：BodyParts3D は臓器ごとに作られていて、筋などが皮膚の外へ少しはみ出す所がある
+//（内転筋のあたりなど）。皮膚の外、または皮膚から CLAMP_MARGIN 以内にある頂点を、皮膚の内側へ押し戻す
+const CLAMP_MARGIN = 0.0012; // 骨
+const CLAMP_MARGIN_SOFT = 0.0025; // 筋・動脈・神経（皮膚との重なりのちらつきも防ぐ）
+let skinBVH = null;
+function skinForClamp() {
+  if (skinBVH) return skinBVH;
+  const m = keepOuterShell(merge(filesUnder('partof', 'FMA7163')));
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(m.pos, 3));
+  g.setIndex(new THREE.BufferAttribute(m.idx, 1));
+  skinBVH = { bvh: new MeshBVH(g), nor: m.nor, idx: m.idx };
+  return skinBVH;
+}
+function clampInsideSkin(m, label, margin = CLAMP_MARGIN) {
+  const { bvh, nor, idx } = skinForClamp();
+  const p = new THREE.Vector3();
+  const n = new THREE.Vector3();
+  let moved = 0;
+  for (let i = 0; i < m.pos.length; i += 3) {
+    p.set(m.pos[i], m.pos[i + 1], m.pos[i + 2]);
+    const hit = bvh.closestPointToPoint(p, {});
+    if (!hit) continue;
+    n.set(0, 0, 0);
+    for (let k = 0; k < 3; k++) {
+      const v = idx[hit.faceIndex * 3 + k];
+      n.x += nor[v * 3]; n.y += nor[v * 3 + 1]; n.z += nor[v * 3 + 2];
+    }
+    n.normalize();
+    const out = p.clone().sub(hit.point).dot(n); // 正なら皮膚の外
+    if (out > -margin) {
+      p.copy(hit.point).addScaledVector(n, -margin);
+      m.pos[i] = p.x; m.pos[i + 1] = p.y; m.pos[i + 2] = p.z;
+      moved++;
+    }
+  }
+  if (label) console.log(`${label}: ${moved} vertices pushed inside the skin`);
+  return m;
+}
+
 fs.mkdirSync(OUT, { recursive: true });
 const regionsFile = path.join(ROOT, 'scripts', 'skin-regions.txt');
 const regions = fs.existsSync(regionsFile) ? [...fs.readFileSync(regionsFile, 'utf8').trim()].map(Number) : null;
 if (!regions) console.warn('scripts/skin-regions.txt が無いので、手掌・足底・爪の色は付けない（python3 scripts/skin_regions.py で作る）');
 const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true, regions }); // skin（外側の面だけ）
-const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591')); // bone organ + costal cartilage
+const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591'), { clamp: true }); // bone organ + costal cartilage
 // ---- 目印の強調表示用：data/structures.json に出てくる部品を、部品ごとの別メッシュ（ノード名＝部品名）で1つの glb に入れる
 const partFiles = new Map();
 for (const tree of ['isa', 'partof'])
@@ -251,7 +294,7 @@ async function writeStructures() {
   for (const name of [...partNames].sort()) {
     const files = [...(partFiles.get(name) ?? [])].filter((f) => objPath(f)).sort();
     if (!files.length) throw new Error('part not found: ' + name);
-    const m = merge(files);
+    const m = clampInsideSkin(merge(files), null, CLAMP_MARGIN_SOFT);
     total += m.pos.length / 3;
     const prim = doc
       .createPrimitive()
@@ -280,45 +323,53 @@ async function writeNails() {
     return null;
   }
   const { nails } = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const pos = [];
-  const idx = [];
-  for (const n of nails) {
-    const base = pos.length / 3;
-    for (const p of n.positions) pos.push(...p);
-    for (const i of n.indices) idx.push(i + base);
-  }
-  // 法線：面の法線を頂点に足し合わせる
-  const nor = new Float32Array(pos.length);
-  for (let k = 0; k < idx.length; k += 3) {
-    const [a, b, c] = [idx[k], idx[k + 1], idx[k + 2]].map((i) => pos.slice(i * 3, i * 3 + 3));
-    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-    const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-    for (const i of [idx[k], idx[k + 1], idx[k + 2]]) for (let j = 0; j < 3; j++) nor[i * 3 + j] += n[j];
-  }
-  for (let i = 0; i < nor.length; i += 3) {
-    const l = Math.hypot(nor[i], nor[i + 1], nor[i + 2]) || 1;
-    nor[i] /= l; nor[i + 1] /= l; nor[i + 2] /= l;
-  }
   const doc = new Document();
   doc.getRoot().getAsset().copyright = CREDIT;
   const buf = doc.createBuffer();
-  const prim = doc
-    .createPrimitive()
-    .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(new Float32Array(pos)).setBuffer(buf))
-    .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(nor).setBuffer(buf))
-    .setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(buf));
-  doc.createScene().addChild(doc.createNode('nails').setMesh(doc.createMesh('nails').addPrimitive(prim)));
+  const scene = doc.createScene();
+  // 爪甲（nails）と、その周りの爪郭（nailFolds：少し暗い縁でくぼんで見せる）を別のメッシュにする
+  for (const [name, pk, ik] of [['nails', 'positions', 'indices'], ['nailFolds', 'rimPositions', 'rimIndices']]) {
+    const pos = [];
+    const idx = [];
+    for (const n of nails) {
+      const base = pos.length / 3;
+      for (const p of n[pk]) pos.push(...p);
+      for (const i of n[ik]) idx.push(i + base);
+    }
+    const nor = new Float32Array(pos.length);
+    for (let k = 0; k < idx.length; k += 3) {
+      const [a, b, c] = [idx[k], idx[k + 1], idx[k + 2]].map((i) => pos.slice(i * 3, i * 3 + 3));
+      const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+      const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+      for (const i of [idx[k], idx[k + 1], idx[k + 2]]) for (let j = 0; j < 3; j++) nor[i * 3 + j] += n[j];
+    }
+    for (let i = 0; i < nor.length; i += 3) {
+      const l = Math.hypot(nor[i], nor[i + 1], nor[i + 2]) || 1;
+      nor[i] /= l; nor[i + 1] /= l; nor[i + 2] /= l;
+    }
+    const prim = doc
+      .createPrimitive()
+      .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(new Float32Array(pos)).setBuffer(buf))
+      .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(nor).setBuffer(buf))
+      .setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(buf));
+    scene.addChild(doc.createNode(name).setMesh(doc.createMesh(name).addPrimitive(prim)));
+  }
+  const io = new NodeIO().registerExtensions([KHRDracoMeshCompression]).registerDependencies({
+    'draco3d.encoder': await draco3d.createEncoderModule(),
+    'draco3d.decoder': await draco3d.createDecoderModule(),
+  });
+  if (USE_DRACO) await doc.transform(draco({ quantizePosition: 16, quantizeNormal: 10 }));
   const out = path.join(OUT, 'nails.glb');
-  await new NodeIO().write(out, doc);
+  await io.write(out, doc);
   const info = { file: 'nails.glb', nails: nails.length, bytes: fs.statSync(out).size };
   console.log(info);
   return info;
 }
 
 // 表示を切り替えるレイヤー（アプリで必要になったときだけ読み込む）
-const muscles = await writeGlb('muscles.glb', 'muscles', limbFiles('FMA5022')); // muscle organ（上肢・下肢）
-const arteries = await writeGlb('arteries.glb', 'arteries', limbFiles('FMA50720')); // artery（上肢・下肢）
-const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132')); // nerve（全部。BodyParts3D には主な神経だけ）
+const muscles = await writeGlb('muscles.glb', 'muscles', limbFiles('FMA5022'), { clamp: 'soft' }); // muscle organ（上肢・下肢）
+const arteries = await writeGlb('arteries.glb', 'arteries', limbFiles('FMA50720'), { clamp: 'soft' }); // artery（上肢・下肢）
+const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132'), { clamp: 'soft' }); // nerve（全部。BodyParts3D には主な神経だけ）
 const structures = await writeStructures();
 const nailsInfo = await writeNails();
 fs.writeFileSync(

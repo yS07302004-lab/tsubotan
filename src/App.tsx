@@ -1,5 +1,10 @@
-import { useMemo, useState } from 'react';
-import Viewer, { type ViewName } from './components/Viewer';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import type { ViewName } from './components/Viewer';
+import StartScreen, { loadStartChoice, saveStartChoice, type StartChoice } from './components/StartScreen';
+
+// 3D（three.js）はスタート画面で選んでから読み込む。スタート画面の表示中に裏で先読みしておく
+const loadViewer = () => import('./components/Viewer');
+const Viewer = lazy(loadViewer);
 import PointCard from './components/PointCard';
 import PointList from './components/PointList';
 import PlacementPanel, { allTargets, targetKey } from './components/PlacementPanel';
@@ -15,10 +20,27 @@ export default function App() {
   const [tab, setTab] = useState<'3d' | 'list'>('3d');
   const [selected, setSelected] = useState<PointRef | null>(null);
   const [skinOpacity, setSkinOpacity] = useState(1);
-  // 起動を軽くするため、最初は皮膚だけ。骨・経絡はボタンで表示する
-  const [layers, setLayers] = useState<LayerState>({ bones: false, muscles: false, arteries: false, nerves: false });
-  const [visibleMeridians, setVisibleMeridians] = useState<string[]>([]);
-  const [showGhost, setShowGhost] = useState(true);
+  // スタート画面で選んだもの（前回の選択を覚えておく）
+  const [started, setStarted] = useState(false);
+  const initial = useMemo(loadStartChoice, []);
+  const [layers, setLayers] = useState<LayerState>(initial.layers);
+  const [visibleMeridians, setVisibleMeridians] = useState<string[]>(initial.meridians);
+  const [showGhost, setShowGhost] = useState(initial.ghost);
+  const [panelOpen, setPanelOpen] = useState(false);
+  useEffect(() => {
+    // スタート画面を出している間に、3D の部品とモデルを先読みする
+    const id = setTimeout(() => void loadViewer(), 300);
+    return () => clearTimeout(id);
+  }, []);
+  const start = (c: StartChoice, toList = false) => {
+    saveStartChoice(c);
+    setLayers(c.layers);
+    setVisibleMeridians(c.meridians);
+    setShowGhost(c.ghost);
+    if (c.layers.muscles || c.layers.arteries || c.layers.nerves) setSkinOpacity(0.3);
+    setTab(toList ? 'list' : '3d');
+    setStarted(true);
+  };
   const toggleMeridian = (code: string) =>
     setVisibleMeridians((v) => (v.includes(code) ? v.filter((c) => c !== code) : [...v, code]));
   const toggleLayer = (name: LayerName) => {
@@ -69,6 +91,58 @@ export default function App() {
     }
   };
 
+  if (!started) return <StartScreen initial={initial} onStart={start} />;
+
+  const controls = (
+    <div className="panel" role="dialog" aria-label="表示の設定">
+      <label className="slider">
+        <span>皮膚</span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={1}
+          value={Math.round(skinOpacity * 100)}
+          onChange={(e) => setSkinOpacity(Number(e.target.value) / 100)}
+          aria-label="皮膚の透明度"
+        />
+        <output>{Math.round(skinOpacity * 100)}%</output>
+      </label>
+      <div className="layers meridians" role="group" aria-label="表示する経絡">
+        {MERIDIANS.map((m) => (
+          <button key={m.code} className={visibleMeridians.includes(m.code) ? 'on' : ''} onClick={() => toggleMeridian(m.code)} aria-pressed={visibleMeridians.includes(m.code)}>
+            {m.short}
+          </button>
+        ))}
+        <button className={showGhost ? 'on' : ''} onClick={() => setShowGhost((v) => !v)} aria-pressed={showGhost} title="体の向こう側の経絡・経穴を薄く表示">
+          透視
+        </button>
+      </div>
+      <div className="layers" role="group" aria-label="表示する層">
+        {LAYERS.map((l) => (
+          <button key={l.name} className={layers[l.name] ? 'on' : ''} onClick={() => toggleLayer(l.name)} aria-pressed={layers[l.name]}>
+            <i style={{ background: l.color }} />
+            {l.label}
+          </button>
+        ))}
+      </div>
+      <div className="layers views" role="group" aria-label="視点">
+        {(
+          [
+            ['front', '前'],
+            ['side', '横'],
+            ['back', '後'],
+            ['reset', '全体'],
+          ] as const
+        ).map(([name, label]) => (
+          <button key={name} onClick={() => setView((v) => ({ name, key: v.key + 1 }))}>
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="app">
       <header className="topbar">
@@ -98,100 +172,69 @@ export default function App() {
       </header>
 
       <main className="stage">
-        <Viewer
-          points={points}
-          landmarks={landmarks}
-          selected={selected}
-          onSelect={pick}
-          skinOpacity={skinOpacity}
-          placing={placing}
-          onPlace={onPlace}
-          focus={focus.pos}
-          focusKey={focus.key}
-          view={view.name}
-          viewKey={view.key}
-          showLandmarks={placing}
-          layers={layers}
-          visibleMeridians={visibleMeridians}
-          showGhost={showGhost}
-        />
-        <div className="view-buttons" role="group" aria-label="視点">
-          {(
-            [
-              ['front', '前'],
-              ['side', '横'],
-              ['back', '後'],
-              ['reset', '全体'],
-            ] as const
-          ).map(([name, label]) => (
-            <button key={name} onClick={() => setView((v) => ({ name, key: v.key + 1 }))}>
-              {label}
-            </button>
-          ))}
-        </div>
+        <Suspense fallback={<div className="loading">3Dを準備中…</div>}>
+          <Viewer
+            points={points}
+            landmarks={landmarks}
+            selected={selected}
+            onSelect={pick}
+            skinOpacity={skinOpacity}
+            placing={placing}
+            onPlace={onPlace}
+            focus={focus.pos}
+            focusKey={focus.key}
+            view={view.name}
+            viewKey={view.key}
+            showLandmarks={placing}
+            layers={layers}
+            visibleMeridians={visibleMeridians}
+            showGhost={showGhost}
+            onInteract={() => setPanelOpen(false)}
+          />
+        </Suspense>
         <p className="credit">{CREDIT}</p>
+        {tab === '3d' && (
+          <>
+            {panelOpen && controls}
+            {/* スイッチ類はふだんしまっておき、このボタンで出す（3Dを動かし始めると自動でしまう） */}
+            <button className={'panel-toggle' + (panelOpen ? ' on' : '')} onClick={() => setPanelOpen((v) => !v)} aria-expanded={panelOpen}>
+              {panelOpen ? '閉じる' : '表示'}
+            </button>
+          </>
+        )}
         {tab === 'list' && <PointList points={points} selected={selected} onPick={pick} />}
       </main>
 
-      <footer className="bottom">
-        <label className="slider">
-          <span>皮膚</span>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={Math.round(skinOpacity * 100)}
-            onChange={(e) => setSkinOpacity(Number(e.target.value) / 100)}
-            aria-label="皮膚の透明度"
-          />
-          <output>{Math.round(skinOpacity * 100)}%</output>
-        </label>
-        <div className="layers meridians" role="group" aria-label="表示する経絡">
-          {MERIDIANS.map((m) => (
-            <button key={m.code} className={visibleMeridians.includes(m.code) ? 'on' : ''} onClick={() => toggleMeridian(m.code)} aria-pressed={visibleMeridians.includes(m.code)}>
-              {m.short}
-            </button>
-          ))}
-          <button className={showGhost ? 'on' : ''} onClick={() => setShowGhost((v) => !v)} aria-pressed={showGhost} title="体の向こう側の経絡・経穴を薄く表示">
-            透視
-          </button>
-        </div>
-        <div className="layers" role="group" aria-label="表示する層">
-          {LAYERS.map((l) => (
-            <button key={l.name} className={layers[l.name] ? 'on' : ''} onClick={() => toggleLayer(l.name)} aria-pressed={layers[l.name]}>
-              <i style={{ background: l.color }} />
-              {l.label}
-            </button>
-          ))}
-        </div>
-        {placing ? (
-          <PlacementPanel
-            points={points}
-            landmarks={landmarks}
-            target={target}
-            onTarget={setTarget}
-            autoNext={autoNext}
-            onAutoNext={setAutoNext}
-            onClear={() => (target.kind === 'point' ? setPoint(target.id, target.side, null) : setLandmark(target.key, { position: null }))}
-            onStatus={(s) => (target.kind === 'point' ? setPointStatus(target.id, s) : setLandmark(target.key, { positionStatus: s }))}
-            onResetAll={reset}
-          />
-        ) : (
-          selPoint &&
-          selected && (
-            <PointCard
-              point={selPoint}
-              side={selected.side}
-              onSide={(side) => pick({ id: selPoint.id, side })}
+      {(placing || (selPoint && selected)) && (
+        <footer className="bottom">
+          {placing ? (
+            <PlacementPanel
+              points={points}
               landmarks={landmarks}
-              onClose={() => setSelected(null)}
-              onPrev={selIndex > 0 ? () => step(-1) : undefined}
-              onNext={selIndex < sameMeridian.length - 1 ? () => step(1) : undefined}
+              target={target}
+              onTarget={setTarget}
+              autoNext={autoNext}
+              onAutoNext={setAutoNext}
+              onClear={() => (target.kind === 'point' ? setPoint(target.id, target.side, null) : setLandmark(target.key, { position: null }))}
+              onStatus={(s) => (target.kind === 'point' ? setPointStatus(target.id, s) : setLandmark(target.key, { positionStatus: s }))}
+              onResetAll={reset}
             />
-          )
-        )}
-      </footer>
+          ) : (
+            selPoint &&
+            selected && (
+              <PointCard
+                point={selPoint}
+                side={selected.side}
+                onSide={(side) => pick({ id: selPoint.id, side })}
+                landmarks={landmarks}
+                onClose={() => setSelected(null)}
+                onPrev={selIndex > 0 ? () => step(-1) : undefined}
+                onNext={selIndex < sameMeridian.length - 1 ? () => step(1) : undefined}
+              />
+            )
+          )}
+        </footer>
+      )}
     </div>
   );
 }

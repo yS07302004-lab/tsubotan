@@ -44,27 +44,40 @@ function firstGeometry(scene: THREE.Object3D): THREE.BufferGeometry {
   return g;
 }
 
-/** 爪（皮膚の上に重ねる薄い板）。皮膚と同じ透明度で描く */
+/** 爪（皮膚に重ねる薄い板）と、その周りの少し暗い縁（爪郭）。皮膚と同じ透明度で描く */
 function Nails({ opacity }: { opacity: number }) {
   const gltf = useGLTF(MODEL_URL.nails, MODEL_URL.draco);
-  const geo = useMemo(() => firstGeometry(gltf.scene), [gltf]);
+  const geo = useMemo(() => {
+    const get = (n: string) => (gltf.scene.getObjectByName(n) as THREE.Mesh | undefined)?.geometry;
+    return { nail: get('nails') ?? firstGeometry(gltf.scene), fold: get('nailFolds') };
+  }, [gltf]);
   const opaque = opacity >= 0.999;
   if (opacity <= 0.001) return null;
+  const mat = (color: string, offset: number, rough: number) => (
+    <meshStandardMaterial
+      key={opaque ? 'o' : 't'}
+      color={color}
+      roughness={rough}
+      transparent={!opaque}
+      opacity={opacity}
+      depthWrite={opaque}
+      polygonOffset
+      polygonOffsetFactor={offset}
+      polygonOffsetUnits={offset}
+      side={THREE.DoubleSide}
+    />
+  );
   return (
-    <mesh geometry={geo} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
-      <meshStandardMaterial
-        key={opaque ? 'o' : 't'}
-        color="#f7dcd8"
-        roughness={0.35}
-        transparent={!opaque}
-        opacity={opacity}
-        depthWrite={opaque}
-        polygonOffset
-        polygonOffsetFactor={-2}
-        polygonOffsetUnits={-2}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group>
+      {geo.fold && (
+        <mesh geometry={geo.fold} renderOrder={ORDER.skinColor + 0.3} raycast={() => null}>
+          {mat('#c79a86', -1, 0.9)}
+        </mesh>
+      )}
+      <mesh geometry={geo.nail} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
+        {mat('#f3d6d0', -4, 0.3)}
+      </mesh>
+    </group>
   );
 }
 
@@ -562,6 +575,8 @@ export interface ViewerProps {
   /** 表示する経絡（コード）。選んでいる穴の経絡はいつも表示する */
   visibleMeridians: string[];
   showGhost: boolean;
+  /** 3D を指で動かし始めたとき（スイッチ類をしまうのに使う） */
+  onInteract?: () => void;
 }
 
 function Scene(props: ViewerProps) {
@@ -645,7 +660,7 @@ export default function Viewer(props: ViewerProps) {
           <Scene {...props} />
         </GhostCtx.Provider>
       </Suspense>
-      <OrbitControls makeDefault target={INITIAL_CAMERA.target} enableDamping minDistance={0.08} maxDistance={4} />
+      <OrbitControls makeDefault target={INITIAL_CAMERA.target} enableDamping minDistance={0.08} maxDistance={4} onStart={props.onInteract} />
     </Canvas>
   );
 }

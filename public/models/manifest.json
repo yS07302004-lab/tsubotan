@@ -28,7 +28,7 @@
       "vertices": 287477,
       "triangles": 520766,
       "parts": 217,
-      "bytes": 1274120,
+      "bytes": 1250780,
       "bounds_m": {
         "min": [
           -0.3239139914512634,
@@ -47,7 +47,7 @@
       "vertices": 231982,
       "triangles": 284228,
       "parts": 142,
-      "bytes": 947076,
+      "bytes": 947008,
       "bounds_m": {
         "min": [
           -0.3193790018558502,
@@ -66,7 +66,7 @@
       "vertices": 139626,
       "triangles": 273948,
       "parts": 102,
-      "bytes": 576456,
+      "bytes": 576512,
       "bounds_m": {
         "min": [
           -0.32442599534988403,
@@ -85,11 +85,11 @@
       "vertices": 16555,
       "triangles": 28928,
       "parts": 26,
-      "bytes": 87956,
+      "bytes": 68784,
       "bounds_m": {
         "min": [
           -0.04413039982318878,
-          1.5057899951934814,
+          1.5072200298309326,
           0.09448929876089096
         ],
         "max": [
@@ -103,12 +103,12 @@
       "file": "structures.glb",
       "parts": 123,
       "vertices": 262576,
-      "bytes": 1527640
+      "bytes": 1525532
     },
     {
       "file": "nails.glb",
       "nails": 20,
-      "bytes": 163212
+      "bytes": 41364
     }
   ]
 }

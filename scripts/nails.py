@@ -80,46 +80,58 @@ for side in ['right', 'left']:
         tip = ray(p1 + a * 0.03, -a)
         tip_t = 1.0 + (np.linalg.norm(tip - p1) / L if tip is not None else 0.15)
         w = np.radians(HALF_WIDTH.get(digit, 55))
-        t_prox, t_end = 0.42, 1.0 + (tip_t - 1.0) * 0.55
-        nu, nv = 14, 13
-        grid = np.zeros((nu, nv, 3))
-        radius = None
-        for i in range(nu):
-            for j in range(nv):
-                q = -1 + 2 * j / (nv - 1)
-                th = q * w
-                t0 = t_prox + 0.10 * q * q          # 根元は丸く（中央がいちばん近位）
-                t1 = t_end - 0.07 * q * q           # 先端も丸く
-                t = t0 + (t1 - t0) * i / (nu - 1)
-                ap = p0 + a * L * t
-                if digit in TOES:
-                    # 足指は短くずんぐりしているので、上から真下（背側から）へ投影する。幅は mm で決める
-                    off = q * TOE_HALF_MM[digit] / 1000
-                    o = ap + s * off + dorsal * 0.02
-                    h = ray(o, -dorsal)
-                    if h is None or np.linalg.norm(h - (ap + s * off)) > 0.015:
-                        h = ap + s * off + dorsal * (radius or 0.005)
+        t_prox, t_end = 0.52, 1.0 + (tip_t - 1.0) * 0.72   # 根元は末節骨の約半分、先端は指先のすぐ手前
+
+        def make_grid(t_prox, t_end, wscale, lift, nu=18, nv=15):
+            grid = np.zeros((nu, nv, 3))
+            radius = None
+            for i in range(nu):
+                for j in range(nv):
+                    q = -1 + 2 * j / (nv - 1)
+                    th = q * w * wscale
+                    t0 = t_prox + 0.10 * q * q          # 根元は丸く（中央がいちばん近位）
+                    t1 = t_end - 0.07 * q * q           # 先端も丸く
+                    t = t0 + (t1 - t0) * i / (nu - 1)
+                    ap = p0 + a * L * t
+                    if digit in TOES:
+                        # 足指は短くずんぐりしているので、上から真下（背側から）へ投影する。幅は mm で決める
+                        off = q * TOE_HALF_MM[digit] * wscale / 1000
+                        o = ap + s * off + dorsal * 0.02
+                        h = ray(o, -dorsal)
+                        if h is None or np.linalg.norm(h - (ap + s * off)) > 0.015:
+                            h = ap + s * off + dorsal * (radius or 0.005)
+                        else:
+                            radius = (h - (ap + s * off)) @ dorsal
+                        grid[i, j] = h + dorsal * lift
+                        continue
+                    d = np.cos(th) * dorsal + np.sin(th) * s
+                    # 隣の指に当たらないよう、骨のすぐ外（1.5cm）から撃ち、遠すぎる当たりは捨てる
+                    h = ray(ap + d * 0.015, -d)
+                    if h is None or np.linalg.norm(h - ap) > 0.013:
+                        h = ap + d * (radius if radius else 0.006)
                     else:
-                        radius = (h - (ap + s * off)) @ dorsal
-                    grid[i, j] = h + dorsal * 0.0006
-                    continue
-                d = np.cos(th) * dorsal + np.sin(th) * s
-                # 隣の指に当たらないよう、骨のすぐ外（1.5cm）から撃ち、遠すぎる当たりは捨てる
-                h = ray(ap + d * 0.015, -d)
-                if h is None or np.linalg.norm(h - ap) > 0.013:
-                    h = ap + d * (radius if radius else 0.006)
-                else:
-                    radius = np.linalg.norm(h - ap)
-                grid[i, j] = h + d * 0.0006       # 曲面に食い込まないよう皮膚から0.6mm浮かせる
+                        radius = np.linalg.norm(h - ap)
+                    grid[i, j] = h + d * lift
+            return grid
+
+        def tris(nu, nv):
+            idx = []
+            for i in range(nu - 1):
+                for j in range(nv - 1):
+                    k = i * nv + j
+                    idx += [k, k + nv, k + 1, k + 1, k + nv, k + nv + 1]
+            return idx
+
+        # 爪甲は皮膚とほぼ同じ高さ（0.3mm）。周りの爪郭は少し大きく、さらに低く（0.15mm）・暗めに描いて、くぼんで見せる
+        grid = make_grid(t_prox, t_end, 1.0, 0.0003)
+        rim = make_grid(t_prox - 0.07, t_end + 0.02, 1.13, 0.00015)
+        nu, nv = grid.shape[0], grid.shape[1]
         pos = grid.reshape(-1, 3)
-        idx = []
-        for i in range(nu - 1):
-            for j in range(nv - 1):
-                k = i * nv + j
-                idx += [k, k + nv, k + 1, k + 1, k + nv, k + nv + 1]
+        idx = tris(nu, nv)
         out.append({
             'side': 'R' if side == 'right' else 'L', 'digit': digit,
             'positions': np.round(pos, 5).tolist(), 'indices': idx,
+            'rimPositions': np.round(rim.reshape(-1, 3), 5).tolist(), 'rimIndices': tris(rim.shape[0], rim.shape[1]),
             'cornerLateral': np.round(grid[0, nv - 1], 5).tolist(),   # 爪甲の根元・外側（手は橈側、足は外側）の角
             'cornerMedial': np.round(grid[0, 0], 5).tolist(),
             'axis': np.round(a, 5).tolist(), 'lateralDir': np.round(s, 5).tolist(),
