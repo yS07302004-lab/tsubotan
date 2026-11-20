@@ -1,13 +1,27 @@
 import lungJson from '../data/lung.json';
+import kidneyJson from '../data/kidney.json';
 import kotsudoJson from '../data/kotsudo.json';
 import landmarksJson from '../data/landmarks.json';
 import type { Acupoint, KotsudoSegment, Landmark } from './types';
 
-export const ACUPOINTS = lungJson as unknown as Acupoint[];
+export interface Meridian {
+  code: string;
+  name: string;
+  file: string; // 書き出すときのファイル名
+  points: Acupoint[];
+}
+
+// 経絡を足すときは data/<名前>.json を作ってここに並べる
+export const MERIDIANS: Meridian[] = [
+  { code: 'LU', name: '手の太陰肺経', file: 'lung.json', points: lungJson as unknown as Acupoint[] },
+  { code: 'KI', name: '足の少陰腎経', file: 'kidney.json', points: kidneyJson as unknown as Acupoint[] },
+];
+
+export const ACUPOINTS: Acupoint[] = MERIDIANS.flatMap((m) => m.points);
 export const KOTSUDO = kotsudoJson as unknown as KotsudoSegment[];
 export const LANDMARKS = landmarksJson as unknown as Landmark[];
 
-export const MERIDIAN_NAMES: Record<string, string> = { LU: '手の太陰肺経' };
+export const meridianOf = (code: string) => MERIDIANS.find((m) => m.code === code);
 
 export const CREDIT =
   'BodyParts3D, Copyright© The Database Center for Life Science licensed by CC Attribution-Share Alike 2.1 Japan';

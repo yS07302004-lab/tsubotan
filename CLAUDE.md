@@ -1,4 +1,4 @@
-# ツボ単アプリ（肺経デモ）仕様書
+# ツボ単アプリ 仕様書（肺経デモ → 腎経で拡張を試行中）
 
 ## 目的
 経穴を「見て覚える」ための図鑑アプリ。まず手の太陰肺経11穴だけでデモを作り、使い勝手が良ければ全361穴（十四経：正経309穴＋督脈28穴＋任脈24穴）に広げる。奇穴は扱う場合は別枠。
@@ -57,10 +57,14 @@
   "kotsudo": "骨度法の区間ID（kotsudo.json参照、無ければnull）",
   "tags": ["募穴"],
   "etymology": { "text": "由来", "status": "draft | checked", "sources": [] },
-  "position": null
+  "positions": { "R": [x, y, z], "L": [x, y, z] },
+  "positionStatus": "draft | checked"
 }
 ```
-- `position` は配置モードで決めるまで null
+- 経絡ごとに `data/<経絡>.json`（例：`lung.json`, `kidney.json`）。`src/data.ts` の `MERIDIANS` に並べる
+- `positions` は左右それぞれの位置（アプリ座標、m）。配置モードで決めるまで、その側は無い（`{}`）
+- `positionStatus` が `checked` でない穴は、カードに「仮置き」と表示する
+- 骨度法の物差しの端点は `data/landmarks.json`（名前は kotsudo.json の from / to と同じ。`side` は R / L / midline）
 - 穴の呼び名は WHO コードで統一（クイズ側と共通にするため）
 - `tags` は統一した語彙を使う（例：「募穴」「原穴」「郄穴」「絡穴」「井木穴」）。「肺の募穴」のように書き方を変えない（絞り込みで使うため）
 

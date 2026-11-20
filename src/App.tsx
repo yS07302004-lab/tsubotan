@@ -3,46 +3,53 @@ import Viewer, { type ViewName } from './components/Viewer';
 import PointCard from './components/PointCard';
 import PointList from './components/PointList';
 import PlacementPanel, { allTargets, targetKey } from './components/PlacementPanel';
-import { CREDIT, MERIDIAN_NAMES } from './data';
+import { CREDIT, meridianOf } from './data';
 import { roundVec, usePlacement } from './placement';
-import type { PlaceTarget, Vec3 } from './types';
+import type { PlaceTarget, PointRef, Vec3 } from './types';
 
 // 配置モードは開発用：開発サーバー、または URL に ?dev を付けたときだけ出す
 const DEV = import.meta.env.DEV || new URLSearchParams(location.search).has('dev');
 
 export default function App() {
-  const { points, landmarks, set, reset } = usePlacement();
+  const { points, landmarks, setPoint, setPointStatus, setLandmark, reset } = usePlacement();
   const [tab, setTab] = useState<'3d' | 'list'>('3d');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<PointRef | null>(null);
   const [skinOpacity, setSkinOpacity] = useState(1);
   const [placing, setPlacing] = useState(false);
-  const [target, setTarget] = useState<PlaceTarget>({ kind: 'point', id: points[0].id });
+  const [target, setTarget] = useState<PlaceTarget>({ kind: 'point', id: points[0].id, side: 'R' });
   const [autoNext, setAutoNext] = useState(true);
   const [focus, setFocus] = useState<{ pos: Vec3 | null; key: number }>({ pos: null, key: 0 });
   const [view, setView] = useState<{ name: ViewName | null; key: number }>({ name: null, key: 0 });
 
-  const selected = points.find((p) => p.id === selectedId);
+  const selPoint = selected ? points.find((p) => p.id === selected.id) : undefined;
   const targets = useMemo(() => allTargets(points, landmarks), [points, landmarks]);
 
-  const pick = (id: string) => {
-    setSelectedId(id);
+  const pick = (ref: PointRef) => {
+    const p = points.find((x) => x.id === ref.id);
+    // 選んだ側にまだ位置が無ければ、ある側を出す
+    const side = p?.positions[ref.side] ? ref.side : p?.positions.R ? 'R' : p?.positions.L ? 'L' : ref.side;
+    setSelected({ id: ref.id, side });
     setTab('3d');
-    const p = points.find((x) => x.id === id);
-    if (p?.position) setFocus((f) => ({ pos: p.position, key: f.key + 1 }));
+    const pos = p?.positions[side];
+    if (pos) setFocus((f) => ({ pos, key: f.key + 1 }));
   };
 
-  // カードの ‹ › と横スワイプで、前後の穴へ移る
+  // カードの ‹ › と横スワイプで、同じ経絡の前後の穴へ移る（側はそのまま）
+  const sameMeridian = selPoint ? points.filter((p) => p.meridian === selPoint.meridian) : [];
+  const selIndex = sameMeridian.findIndex((p) => p.id === selected?.id);
   const step = (d: 1 | -1) => {
-    const i = points.findIndex((p) => p.id === selectedId);
-    const next = points[i + d];
-    if (next) pick(next.id);
+    const next = sameMeridian[selIndex + d];
+    if (next && selected) pick({ id: next.id, side: selected.side });
   };
-  const selIndex = points.findIndex((p) => p.id === selectedId);
 
   const onPlace = (p: Vec3) => {
-    const kind = target.kind === 'point' ? 'points' : 'landmarks';
-    set(kind, target.id, { position: roundVec(p), positionStatus: 'draft' });
-    if (target.kind === 'point') setSelectedId(target.id);
+    const pos = roundVec(p);
+    if (target.kind === 'point') {
+      setPoint(target.id, target.side, pos);
+      setSelected({ id: target.id, side: target.side });
+    } else {
+      setLandmark(target.key, { position: pos, positionStatus: 'draft' });
+    }
     if (autoNext) {
       const i = targets.findIndex((t) => targetKey(t) === targetKey(target));
       if (i >= 0 && i + 1 < targets.length) setTarget(targets[i + 1]);
@@ -53,7 +60,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>
-          ツボ単<small>{MERIDIAN_NAMES.LU}</small>
+          ツボ単<small>{selPoint ? meridianOf(selPoint.meridian)?.name : '肺経・腎経'}</small>
         </h1>
         <nav className="tabs">
           <button className={tab === '3d' ? 'active' : ''} onClick={() => setTab('3d')}>
@@ -81,7 +88,7 @@ export default function App() {
         <Viewer
           points={points}
           landmarks={landmarks}
-          selectedId={selectedId}
+          selected={selected}
           onSelect={pick}
           skinOpacity={skinOpacity}
           placing={placing}
@@ -107,7 +114,7 @@ export default function App() {
           ))}
         </div>
         <p className="credit">{CREDIT}</p>
-        {tab === 'list' && <PointList points={points} selectedId={selectedId} onPick={pick} />}
+        {tab === 'list' && <PointList points={points} selected={selected} onPick={pick} />}
       </main>
 
       <footer className="bottom">
@@ -132,18 +139,21 @@ export default function App() {
             onTarget={setTarget}
             autoNext={autoNext}
             onAutoNext={setAutoNext}
-            onClear={() => set(target.kind === 'point' ? 'points' : 'landmarks', target.id, { position: null, positionStatus: 'draft' })}
-            onStatus={(s) => set(target.kind === 'point' ? 'points' : 'landmarks', target.id, { positionStatus: s })}
+            onClear={() => (target.kind === 'point' ? setPoint(target.id, target.side, null) : setLandmark(target.key, { position: null }))}
+            onStatus={(s) => (target.kind === 'point' ? setPointStatus(target.id, s) : setLandmark(target.key, { positionStatus: s }))}
             onResetAll={reset}
           />
         ) : (
+          selPoint &&
           selected && (
             <PointCard
-              point={selected}
+              point={selPoint}
+              side={selected.side}
+              onSide={(side) => pick({ id: selPoint.id, side })}
               landmarks={landmarks}
-              onClose={() => setSelectedId(null)}
+              onClose={() => setSelected(null)}
               onPrev={selIndex > 0 ? () => step(-1) : undefined}
-              onNext={selIndex < points.length - 1 ? () => step(1) : undefined}
+              onNext={selIndex < sameMeridian.length - 1 ? () => step(1) : undefined}
             />
           )
         )}

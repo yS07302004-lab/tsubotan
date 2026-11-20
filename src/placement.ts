@@ -1,15 +1,21 @@
 // 配置モードで決めた座標を保持する（ブラウザの localStorage に一時保存し、JSON で書き出す）
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ACUPOINTS, LANDMARKS } from './data';
-import type { Acupoint, Landmark, PositionStatus, Vec3 } from './types';
+import { landmarkKey, type Acupoint, type Landmark, type PositionStatus, type Side, type Vec3 } from './types';
 
-const KEY = 'tsubotan.placement.v1';
+const KEY = 'tsubotan.placement.v2';
 
-interface Override {
-  position: Vec3 | null;
+interface PointOv {
+  positions?: Partial<Record<Side, Vec3 | null>>; // null はその側を消す
   positionStatus?: PositionStatus;
 }
-type Overrides = { points: Record<string, Override>; landmarks: Record<string, Override> };
+interface LandmarkOv {
+  position?: Vec3 | null;
+  positionStatus?: PositionStatus;
+}
+type Overrides = { points: Record<string, PointOv>; landmarks: Record<string, LandmarkOv> };
+
+const EMPTY: Overrides = { points: {}, landmarks: {} };
 
 function load(): Overrides {
   try {
@@ -18,12 +24,22 @@ function load(): Overrides {
   } catch {
     /* 保存できない環境では無視 */
   }
-  return { points: {}, landmarks: {} };
+  return EMPTY;
 }
 
 /** 0.1mm に丸める（単位 m） */
 export function roundVec(v: Vec3): Vec3 {
   return v.map((x) => Math.round(x * 10000) / 10000) as Vec3;
+}
+
+function applyPoint(p: Acupoint, o: PointOv | undefined): Acupoint {
+  if (!o) return p;
+  const positions = { ...p.positions };
+  for (const [s, v] of Object.entries(o.positions ?? {}) as [Side, Vec3 | null][]) {
+    if (v) positions[s] = v;
+    else delete positions[s];
+  }
+  return { ...p, positions, positionStatus: o.positionStatus ?? p.positionStatus };
 }
 
 export function usePlacement() {
@@ -37,30 +53,31 @@ export function usePlacement() {
     }
   }, [ov]);
 
-  const points: Acupoint[] = useMemo(
-    () => ACUPOINTS.map((p) => (ov.points[p.id] ? { ...p, ...ov.points[p.id] } : p)),
-    [ov],
-  );
+  const points: Acupoint[] = useMemo(() => ACUPOINTS.map((p) => applyPoint(p, ov.points[p.id])), [ov]);
   const landmarks: Landmark[] = useMemo(
-    () => LANDMARKS.map((l) => (ov.landmarks[l.name] ? { ...l, ...ov.landmarks[l.name] } : l)),
+    () =>
+      LANDMARKS.map((l) => {
+        const o = ov.landmarks[landmarkKey(l)];
+        return o ? { ...l, ...o, position: o.position === undefined ? l.position : o.position } : l;
+      }),
     [ov],
   );
 
-  const set = useCallback((kind: 'points' | 'landmarks', id: string, o: Partial<Override>) => {
+  const setPoint = useCallback((id: string, side: Side, position: Vec3 | null) => {
     setOv((prev) => {
-      const base =
-        prev[kind][id] ??
-        (kind === 'points'
-          ? { position: ACUPOINTS.find((p) => p.id === id)?.position ?? null, positionStatus: ACUPOINTS.find((p) => p.id === id)?.positionStatus }
-          : { position: LANDMARKS.find((l) => l.name === id)?.position ?? null, positionStatus: LANDMARKS.find((l) => l.name === id)?.positionStatus });
-      return { ...prev, [kind]: { ...prev[kind], [id]: { ...base, ...o } } };
+      const cur = prev.points[id] ?? {};
+      return { ...prev, points: { ...prev.points, [id]: { ...cur, positions: { ...cur.positions, [side]: position }, positionStatus: 'draft' } } };
     });
   }, []);
+  const setPointStatus = useCallback((id: string, positionStatus: PositionStatus) => {
+    setOv((prev) => ({ ...prev, points: { ...prev.points, [id]: { ...prev.points[id], positionStatus } } }));
+  }, []);
+  const setLandmark = useCallback((key: string, o: LandmarkOv) => {
+    setOv((prev) => ({ ...prev, landmarks: { ...prev.landmarks, [key]: { ...prev.landmarks[key], ...o } } }));
+  }, []);
+  const reset = useCallback(() => setOv(EMPTY), []);
 
-  const reset = useCallback(() => setOv({ points: {}, landmarks: {} }), []);
-  const dirty = Object.keys(ov.points).length + Object.keys(ov.landmarks).length > 0;
-
-  return { points, landmarks, set, reset, dirty };
+  return { points, landmarks, setPoint, setPointStatus, setLandmark, reset };
 }
 
 // 1行にまとめた JSON（["a", "b"] / {"k": 1} の形。文字列の中は変えない）
@@ -70,10 +87,14 @@ const j = (v: unknown) =>
     .replace(/([[{]) /g, '$1')
     .replace(/ ([\]}])/g, '$1');
 
-/** data/lung.json と同じ書式（1穴を数行にまとめる）で書き出す */
+/** data/<経絡>.json と同じ書式（1穴を数行にまとめる）で書き出す */
 export function formatAcupoints(points: Acupoint[]): string {
   const body = points.map((p) => {
-    const { id, name, reading, meridian, location, landmarks, kotsudo, tags, etymology, position, positionStatus, ...rest } = p;
+    const { id, name, reading, meridian, location, landmarks, kotsudo, tags, etymology, positions, positionStatus, ...rest } = p;
+    const pos = (['R', 'L'] as Side[])
+      .filter((s) => positions[s])
+      .map((s) => `"${s}": ${j(positions[s])}`)
+      .join(', ');
     const lines = [
       `"id": ${j(id)}, "name": ${j(name)}, "reading": ${j(reading)}, "meridian": ${j(meridian)},`,
       `"location": ${j(location)},`,
@@ -82,7 +103,7 @@ export function formatAcupoints(points: Acupoint[]): string {
       `"tags": ${j(tags)},`,
       `"etymology": { "text": ${j(etymology.text)}, "status": ${j(etymology.status)}, "sources": ${j(etymology.sources)} },`,
       ...Object.entries(rest).map(([k, v]) => `${j(k)}: ${j(v)},`),
-      `"position": ${j(position)}${positionStatus ? `, "positionStatus": ${j(positionStatus)}` : ''}`,
+      `"positions": {${pos}}${positionStatus ? `, "positionStatus": ${j(positionStatus)}` : ''}`,
     ];
     return `  {\n${lines.map((l) => '    ' + l).join('\n')}\n  }`;
   });

@@ -1,7 +1,18 @@
 [
-  {"name": "前正中線", "side": "midline", "note": "前正中線上で、第1肋間と同じ高さの点（中府の高さ）", "position": [0, 1.2974, 0.1757], "positionStatus": "draft"},
+  {"name": "前正中線", "side": "midline", "note": "前正中線上の点。物差しは選んだ穴の高さに合わせて描く", "position": [0, 1.2974, 0.1757], "positionStatus": "draft"},
   {"name": "鎖骨中線（乳頭線）", "side": "R", "note": "右の鎖骨中線（鎖骨の中点を通る垂線）上で、第1肋間と同じ高さの点。前正中線の点から真横に取る", "position": [-0.078, 1.2975, 0.1777], "positionStatus": "draft"},
+  {"name": "鎖骨中線（乳頭線）", "side": "L", "note": "左の鎖骨中線（鎖骨の中点を通る垂線）上で、第1肋間と同じ高さの点。前正中線の点から真横に取る", "position": [0.0779, 1.2972, 0.1774], "positionStatus": "draft"},
   {"name": "腋窩横紋前端", "side": "R", "note": "右腋窩横紋の前端", "position": [-0.1769, 1.245, 0.1297], "positionStatus": "draft"},
+  {"name": "腋窩横紋前端", "side": "L", "note": "左腋窩横紋の前端", "position": [0.1768, 1.2451, 0.1294], "positionStatus": "draft"},
   {"name": "肘窩横紋", "side": "R", "note": "右肘窩横紋上で、上腕二頭筋腱の外側（尺沢の位置）", "position": [-0.222, 1.04, 0.1052], "positionStatus": "draft"},
-  {"name": "手関節掌側横紋", "side": "R", "note": "右手関節掌側横紋上で、橈骨動脈の拍動部（太淵の位置）", "position": [-0.268, 0.815, 0.1379], "positionStatus": "draft"}
+  {"name": "肘窩横紋", "side": "L", "note": "左肘窩横紋上で、上腕二頭筋腱の外側（尺沢の位置）", "position": [0.222, 1.04, 0.1054], "positionStatus": "draft"},
+  {"name": "手関節掌側横紋", "side": "R", "note": "右手関節掌側横紋上で、橈骨動脈の拍動部（太淵の位置）", "position": [-0.268, 0.815, 0.1379], "positionStatus": "draft"},
+  {"name": "手関節掌側横紋", "side": "L", "note": "左手関節掌側横紋上で、橈骨動脈の拍動部（太淵の位置）", "position": [0.2679, 0.8149, 0.1377], "positionStatus": "draft"},
+  {"name": "内果尖", "side": "R", "note": "右：脛骨の内果の最も下の先端", "position": [-0.041, -0.004, 0.081], "positionStatus": "draft"},
+  {"name": "内果尖", "side": "L", "note": "左：脛骨の内果の最も下の先端", "position": [0.0397, -0.004, 0.081], "positionStatus": "draft"},
+  {"name": "脛骨内側顆下縁", "side": "R", "note": "右：脛骨内側顆の下縁（内側顆のふくらみが骨幹へ移る所）", "position": [-0.0355, 0.295, 0.087], "positionStatus": "draft"},
+  {"name": "脛骨内側顆下縁", "side": "L", "note": "左：脛骨内側顆の下縁（内側顆のふくらみが骨幹へ移る所）", "position": [0.0339, 0.295, 0.087], "positionStatus": "draft"},
+  {"name": "臍中央", "side": "midline", "note": "臍の中央", "position": [0, 0.958, 0.1955], "positionStatus": "draft"},
+  {"name": "恥骨結合上縁", "side": "midline", "note": "恥骨結合の上縁の中央", "position": [0, 0.806, 0.1789], "positionStatus": "draft"},
+  {"name": "胸骨体下端", "side": "midline", "note": "胸骨体の下端（胸骨体と剣状突起の結合部の中点）", "position": [0, 1.181, 0.2119], "positionStatus": "draft"}
 ]

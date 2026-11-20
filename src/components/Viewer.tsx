@@ -3,9 +3,9 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Html, Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { MODEL_URL, kotsudoById } from '../data';
+import { MERIDIANS, MODEL_URL, kotsudoById } from '../data';
 import { SkinSurface } from '../surface';
-import type { Acupoint, Landmark, Vec3 } from '../types';
+import { SIDES, SIDE_LABEL, findLandmark, type Acupoint, type Landmark, type PointRef, type Side, type Vec3 } from '../types';
 
 // 描画順（小さいほど先に描く）
 // 骨(不透明) → 皮膚の深度だけ先に描く → 皮膚の色(半透明, depthWrite off)
@@ -22,6 +22,8 @@ const LINE_COLOR = '#c2255c';
 const RULER_COLOR = '#1971c2';
 
 export const INITIAL_CAMERA = { position: [-0.55, 1.3, 1.25] as Vec3, target: [-0.17, 1.1, 0.08] as Vec3 };
+
+const WHOLE_BODY = { position: [0, 0.8, 3.4] as Vec3, target: [0, 0.8, 0.1] as Vec3 };
 
 export type ViewName = 'front' | 'side' | 'back' | 'reset';
 const VIEW_DIR: Record<Exclude<ViewName, 'reset'>, THREE.Vector3> = {
@@ -145,22 +147,26 @@ function useScreenScale(pos: THREE.Vector3, refs: React.RefObject<THREE.Object3D
 
 function PointMarker({
   point,
+  side,
+  position,
   surface,
   selected,
   placing,
   onSelect,
 }: {
-  point: Acupoint & { position: Vec3 };
+  point: Acupoint;
+  side: Side;
+  position: Vec3;
   surface: SkinSurface;
   selected: boolean;
   placing: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (ref: PointRef) => void;
 }) {
   const pos = useMemo(() => {
-    const p = new THREE.Vector3(...point.position);
+    const p = new THREE.Vector3(...position);
     // 皮膚に半分埋もれないよう、法線方向に少しだけ浮かせる
     return p.addScaledVector(surface.closest(p).normal, 0.0008);
-  }, [point.position, surface]);
+  }, [position, surface]);
   const solid = useRef<THREE.Mesh>(null);
   const ghost = useRef<THREE.Mesh>(null);
   const hit = useRef<THREE.Mesh>(null);
@@ -185,7 +191,7 @@ function PointMarker({
             ? undefined
             : (e) => {
                 e.stopPropagation();
-                onSelect(point.id);
+                onSelect({ id: point.id, side });
               }
         }
       >
@@ -195,7 +201,9 @@ function PointMarker({
         <Html center style={{ pointerEvents: 'none' }} zIndexRange={[20, 0]}>
           <div className="point-label">
             {point.name}
-            <span>{point.id}</span>
+            <span>
+              {point.id}・{SIDE_LABEL[side]}
+            </span>
           </div>
         </Html>
       )}
@@ -204,28 +212,46 @@ function PointMarker({
 }
 
 /** 経穴を順に結ぶ線を、皮膚の表面に沿わせて描く */
-function MeridianLine({ points, surface }: { points: Acupoint[]; surface: SkinSurface }) {
+function MeridianLine({ points, side, surface }: { points: Acupoint[]; side: Side; surface: SkinSurface }) {
   const path = useMemo(() => {
-    const ps = points.filter((p) => p.position).map((p) => new THREE.Vector3(...(p.position as Vec3)));
+    const ps = points.filter((p) => p.positions[side]).map((p) => new THREE.Vector3(...(p.positions[side] as Vec3)));
     const out: THREE.Vector3[] = [];
     for (let i = 0; i + 1 < ps.length; i++) {
       const seg = surface.walk(ps[i], ps[i + 1], 0.004, LIFT).map((h) => h.point); // 皮膚の上を4mmずつ
       out.push(...(i === 0 ? seg : seg.slice(1)));
     }
     return out;
-  }, [points, surface]);
+  }, [points, side, surface]);
   return <SurfaceLine points={path} color={LINE_COLOR} width={2.5} order={ORDER.line} />;
 }
 
 /** 骨度法の物差し：from〜to を sun 等分し、extend 寸だけ to の先へ延長する。皮膚に沿わせて描く */
-function KotsudoRuler({ point, landmarks, surface }: { point: Acupoint | undefined; landmarks: Landmark[]; surface: SkinSurface }) {
+function KotsudoRuler({
+  point,
+  side,
+  landmarks,
+  surface,
+}: {
+  point: Acupoint | undefined;
+  side: Side;
+  landmarks: Landmark[];
+  surface: SkinSurface;
+}) {
   const seg = kotsudoById(point?.kotsudo ?? null);
-  const a = landmarks.find((l) => l.name === seg?.from)?.position;
-  const b = landmarks.find((l) => l.name === seg?.to)?.position;
+  const a = findLandmark(landmarks, seg?.from, side)?.position;
+  const b = findLandmark(landmarks, seg?.to, side)?.position;
+  const at = point?.positions[side];
   const geo = useMemo(() => {
     if (!seg || !a || !b) return null;
-    const A = new THREE.Vector3(...a);
-    const B = new THREE.Vector3(...b);
+    let A = new THREE.Vector3(...a);
+    let B = new THREE.Vector3(...b);
+    if (seg.align === 'point_height' && at) {
+      // 横向きの区間は、選んだ穴の高さへ平行移動し、前から皮膚へ乗せ直す
+      const dy = at[1] - (A.y + B.y) / 2;
+      const front = new THREE.Vector3(0, 0, 1);
+      A = surface.project(A.setY(A.y + dy), front, 0.2).point;
+      B = surface.project(B.setY(B.y + dy), front, 0.2).point;
+    }
     const total = seg.sun + (seg.extend ?? 0);
     // 直線上で 0.5寸 ごとに目盛り位置を決め、皮膚へ寄せる
     const end = A.clone().lerp(B, total / seg.sun);
@@ -249,7 +275,7 @@ function KotsudoRuler({ point, landmarks, surface }: { point: Acupoint | undefin
       }
     });
     return { main, ext, ticks, labels };
-  }, [seg, a, b, surface]);
+  }, [seg, a, b, at, surface]);
   if (!geo || !seg) return null;
   return (
     <group>
@@ -288,12 +314,14 @@ function CameraRig({
   focusKey,
   view,
   viewKey,
+  side,
 }: {
   surface: SkinSurface;
   focus: Vec3 | null;
   focusKey: number;
   view: ViewName | null;
   viewKey: number;
+  side: Side;
 }) {
   const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
   const camera = useThree((s) => s.camera);
@@ -325,12 +353,15 @@ function CameraRig({
   useEffect(() => {
     if (!controls || !view || viewKey === 0) return;
     if (view === 'reset') {
-      animate(new THREE.Vector3(...INITIAL_CAMERA.target), new THREE.Vector3(...INITIAL_CAMERA.position));
+      // 全身を正面から
+      animate(new THREE.Vector3(...WHOLE_BODY.target), new THREE.Vector3(...WHOLE_BODY.position));
       return;
     }
     const dist = camera.position.distanceTo(controls.target);
     const toT = controls.target.clone();
-    animate(toT, toT.clone().addScaledVector(VIEW_DIR[view], dist));
+    // 「横」は選んでいる側から見る（左なら +X 側）
+    const dir = view === 'side' && side === 'L' ? new THREE.Vector3(1, 0, 0) : VIEW_DIR[view];
+    animate(toT, toT.clone().addScaledVector(dir, dist));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewKey, controls]);
 
@@ -350,8 +381,8 @@ function CameraRig({
 export interface ViewerProps {
   points: Acupoint[];
   landmarks: Landmark[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
+  selected: PointRef | null;
+  onSelect: (ref: PointRef) => void;
   skinOpacity: number;
   placing: boolean;
   onPlace: (p: Vec3) => void;
@@ -363,33 +394,46 @@ export interface ViewerProps {
 }
 
 function Scene(props: ViewerProps) {
-  const { points, landmarks, selectedId, onSelect, skinOpacity, placing, onPlace, focus, focusKey, view, viewKey, showLandmarks } = props;
+  const { points, landmarks, selected, onSelect, skinOpacity, placing, onPlace, focus, focusKey, view, viewKey, showLandmarks } = props;
   const skin = useGLTF(MODEL_URL.skin, MODEL_URL.draco);
   const bones = useGLTF(MODEL_URL.bones, MODEL_URL.draco);
   const skinGeo = useMemo(() => firstGeometry(skin.scene), [skin]);
   const boneGeo = useMemo(() => firstGeometry(bones.scene), [bones]);
   const surface = useMemo(() => new SkinSurface(skinGeo), [skinGeo]);
-  const selected = points.find((p) => p.id === selectedId);
+  const selPoint = selected ? points.find((p) => p.id === selected.id) : undefined;
   return (
     <>
       <Body skinGeo={skinGeo} boneGeo={boneGeo} skinOpacity={skinOpacity} placing={placing} onPlace={onPlace} />
-      <MeridianLine points={points} surface={surface} />
-      {!placing && <KotsudoRuler point={selected} landmarks={landmarks} surface={surface} />}
-      {points
-        .filter((p): p is Acupoint & { position: Vec3 } => !!p.position)
-        .map((p) => (
-          <PointMarker key={p.id} point={p} surface={surface} selected={p.id === selectedId} placing={placing} onSelect={onSelect} />
-        ))}
+      {MERIDIANS.flatMap((m) =>
+        SIDES.map((side) => (
+          <MeridianLine key={`${m.code}-${side}`} points={points.filter((p) => p.meridian === m.code)} side={side} surface={surface} />
+        )),
+      )}
+      {!placing && selected && <KotsudoRuler point={selPoint} side={selected.side} landmarks={landmarks} surface={surface} />}
+      {points.flatMap((p) =>
+        SIDES.filter((side) => p.positions[side]).map((side) => (
+          <PointMarker
+            key={`${p.id}-${side}`}
+            point={p}
+            side={side}
+            position={p.positions[side] as Vec3}
+            surface={surface}
+            selected={selected?.id === p.id && selected.side === side}
+            placing={placing}
+            onSelect={onSelect}
+          />
+        )),
+      )}
       {showLandmarks &&
         landmarks
           .filter((l) => l.position)
           .map((l) => (
-            <mesh key={l.name} position={l.position as Vec3} renderOrder={ORDER.point} raycast={() => null}>
+            <mesh key={`${l.name}|${l.side}`} position={l.position as Vec3} renderOrder={ORDER.point} raycast={() => null}>
               <sphereGeometry args={[0.003, 12, 8]} />
               <meshBasicMaterial color={RULER_COLOR} depthTest={false} transparent />
             </mesh>
           ))}
-      <CameraRig surface={surface} focus={focus} focusKey={focusKey} view={view} viewKey={viewKey} />
+      <CameraRig surface={surface} focus={focus} focusKey={focusKey} view={view} viewKey={viewKey} side={selected?.side ?? 'R'} />
     </>
   );
 }

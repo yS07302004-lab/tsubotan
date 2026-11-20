@@ -1,19 +1,21 @@
 import { useRef, useState } from 'react';
-import { kotsudoById } from '../data';
-import type { Acupoint, Landmark } from '../types';
+import { kotsudoById, meridianOf } from '../data';
+import { SIDES, SIDE_LABEL, findLandmark, type Acupoint, type Landmark, type Side } from '../types';
 
 interface Props {
   point: Acupoint;
+  side: Side;
+  onSide: (s: Side) => void;
   landmarks: Landmark[];
   onClose: () => void;
   onPrev?: () => void;
   onNext?: () => void;
 }
 
-export default function PointCard({ point, landmarks, onClose, onPrev, onNext }: Props) {
+export default function PointCard({ point, side, onSide, landmarks, onClose, onPrev, onNext }: Props) {
   const seg = kotsudoById(point.kotsudo);
-  const a = landmarks.find((l) => l.name === seg?.from)?.position;
-  const b = landmarks.find((l) => l.name === seg?.to)?.position;
+  const a = findLandmark(landmarks, seg?.from, side)?.position;
+  const b = findLandmark(landmarks, seg?.to, side)?.position;
   const unitMm = a && b && seg ? (Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) / seg.sun) * 1000 : null;
   const ety = point.etymology;
   // 3Dを広く見たいときは見出しだけに畳める
@@ -40,7 +42,10 @@ export default function PointCard({ point, landmarks, onClose, onPrev, onNext }:
     <section className="card" aria-label={`${point.name}の詳細`} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <header className="card-head">
         <div className="card-title" onClick={() => setFolded((v) => !v)} role="button" aria-expanded={!folded}>
-          <div className="card-code">{point.id}</div>
+          <div className="card-code">
+            {point.id}
+            <span className="card-meridian">{meridianOf(point.meridian)?.name}</span>
+          </div>
           <h2>
             {point.name}
             <small>{point.reading}</small>
@@ -64,6 +69,14 @@ export default function PointCard({ point, landmarks, onClose, onPrev, onNext }:
       {!folded && (
         <>
 
+      <div className="side-switch" role="group" aria-label="左右">
+        {SIDES.map((s) => (
+          <button key={s} className={s === side ? 'active' : ''} onClick={() => onSide(s)} disabled={!point.positions[s]}>
+            {SIDE_LABEL[s]}
+          </button>
+        ))}
+      </div>
+
       {point.tags.length > 0 && (
         <ul className="tags">
           {point.tags.map((t) => (
@@ -72,7 +85,7 @@ export default function PointCard({ point, landmarks, onClose, onPrev, onNext }:
         </ul>
       )}
 
-      {!point.position ? (
+      {!point.positions[side] ? (
         <p className="warn">この穴はまだ3Dモデル上に配置されていません（配置モードで置けます）</p>
       ) : point.positionStatus !== 'checked' ? (
         <p className="warn">3D上の位置は仮置きです（教科書で未確認）</p>
