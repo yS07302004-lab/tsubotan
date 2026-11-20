@@ -29,7 +29,7 @@ npm run preview    # ビルド結果の確認
 | ファイル | 中身 | 元データ | 頂点 / 三角形 | サイズ |
 |---|---|---|---|---|
 | `public/models/skin.glb` | 皮膚（外側の面だけ）。頂点色で手掌・足底（赤白肉際の白い側）と爪を塗り分け | FMA7163 skin（FJ2810） | 54,949 / 109,183 | 0.26 MB |
-| `public/models/bones.glb` | 全身の骨＋肋軟骨（1メッシュに結合） | is_a ツリーの FMA5018 bone organ と FMA7591 costal cartilage の下にある 213 パーツ | 287,126 / 520,284 | 1.27 MB |
+| `public/models/bones.glb` | 全身の骨＋肋軟骨（1メッシュに結合） | is_a ツリーの FMA5018 bone organ と FMA7591 costal cartilage の下にある 217 パーツ | 287,477 頂点 | 1.27 MB |
 | `public/models/muscles.glb` | 上肢・下肢の筋（重心が手足にある部品） | is_a ツリーの FMA5022 muscle organ | 231,982頂点 / 142部品 | 0.95 MB |
 | `public/models/arteries.glb` | 上肢・下肢の動脈（同上） | FMA50720 artery | 139,626頂点 / 102部品 | 0.58 MB |
 | `public/models/nerves.glb` | 神経（BodyParts3D に入っている主な神経すべて） | FMA65132 nerve | 16,555頂点 / 26部品 | 0.09 MB |
