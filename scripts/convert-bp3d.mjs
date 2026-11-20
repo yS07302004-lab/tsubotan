@@ -97,6 +97,54 @@ function merge(files) {
   return { pos: new Float32Array(pos), nor: new Float32Array(nor), idx: new Uint32Array(idx) };
 }
 
+// 皮膚の OBJ は厚みのある殻で、外側の面と内側の面（約2mm内側）の2枚が入っている。
+// 内側の面があると、表面へ点を寄せたときに皮膚の下へ入ったり、半透明で2重に見えたりするので、
+// つながった部分ごとに分け、外接箱がいちばん大きい部分（＝外側の面）だけを残す。
+function keepOuterShell(m) {
+  const n = m.pos.length / 3;
+  const parent = new Int32Array(n).map((_, i) => i);
+  const find = (x) => {
+    while (parent[x] !== x) x = parent[x] = parent[parent[x]];
+    return x;
+  };
+  for (let i = 0; i < m.idx.length; i += 3) {
+    const a = find(m.idx[i]);
+    parent[find(m.idx[i + 1])] = a;
+    parent[find(m.idx[i + 2])] = a;
+  }
+  const box = new Map();
+  for (let v = 0; v < n; v++) {
+    const r = find(v);
+    const b = box.get(r) ?? { min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity], count: 0 };
+    for (let k = 0; k < 3; k++) {
+      b.min[k] = Math.min(b.min[k], m.pos[v * 3 + k]);
+      b.max[k] = Math.max(b.max[k], m.pos[v * 3 + k]);
+    }
+    b.count++;
+    box.set(r, b);
+  }
+  const vol = (b) => (b.max[0] - b.min[0]) * (b.max[1] - b.min[1]) * (b.max[2] - b.min[2]);
+  const [outer] = [...box.entries()].sort((x, y) => vol(y[1]) - vol(x[1]))[0];
+  const remap = new Int32Array(n).fill(-1);
+  const pos = [];
+  const nor = [];
+  for (let v = 0; v < n; v++) {
+    if (find(v) !== outer) continue;
+    remap[v] = pos.length / 3;
+    for (let k = 0; k < 3; k++) {
+      pos.push(m.pos[v * 3 + k]);
+      nor.push(m.nor[v * 3 + k]);
+    }
+  }
+  const idx = [];
+  for (let i = 0; i < m.idx.length; i += 3) {
+    if (remap[m.idx[i]] < 0) continue;
+    idx.push(remap[m.idx[i]], remap[m.idx[i + 1]], remap[m.idx[i + 2]]);
+  }
+  console.log(`skin: ${box.size} parts -> kept outer shell (${pos.length / 3} of ${n} vertices)`);
+  return { pos: new Float32Array(pos), nor: new Float32Array(nor), idx: new Uint32Array(idx) };
+}
+
 function bounds(p) {
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
@@ -108,8 +156,8 @@ function bounds(p) {
   return { min, max };
 }
 
-async function writeGlb(name, meshName, files) {
-  const m = merge(files);
+async function writeGlb(name, meshName, files, { outerOnly = false } = {}) {
+  const m = outerOnly ? keepOuterShell(merge(files)) : merge(files);
   const doc = new Document();
   doc.getRoot().getAsset().copyright = CREDIT;
   const buf = doc.createBuffer();
@@ -145,7 +193,7 @@ async function writeGlb(name, meshName, files) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163')); // skin
+const skin = await writeGlb('skin.glb', 'skin', filesUnder('partof', 'FMA7163'), { outerOnly: true }); // skin（外側の面だけ）
 const bones = await writeGlb('bones.glb', 'bones', filesUnder('isa', 'FMA5018', 'FMA7591')); // bone organ + costal cartilage
 fs.writeFileSync(
   path.join(OUT, 'manifest.json'),

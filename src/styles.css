@@ -103,3 +103,6 @@ button.danger { color: #b02a37; margin-top: 12px; }
 .export textarea { width: 100%; font-family: ui-monospace, Menlo, monospace; font-size: 11px; margin-top: 4px; }
 .card-title { flex: 1; cursor: pointer; }
 .card-actions { display: flex; }
+.view-buttons { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 6px; }
+.view-buttons button { width: 44px; height: 36px; padding: 0; font-size: 13px; background: rgba(255, 255, 255, 0.85); }
+.icon-btn:disabled { opacity: 0.25; }

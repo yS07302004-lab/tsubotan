@@ -6,10 +6,10 @@
   "models": [
     {
       "file": "skin.glb",
-      "vertices": 102467,
-      "triangles": 203382,
+      "vertices": 54949,
+      "triangles": 109183,
       "parts": 1,
-      "bytes": 480984,
+      "bytes": 255956,
       "bounds_m": {
         "min": [
           -0.3341189920902252,

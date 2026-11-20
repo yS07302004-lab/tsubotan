@@ -1,5 +1,5 @@
 node_modules/
 dist/
-bp3d/
+bp3d
 *.log
 .DS_Store

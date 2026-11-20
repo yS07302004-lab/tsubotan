@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import Viewer from './components/Viewer';
+import Viewer, { type ViewName } from './components/Viewer';
 import PointCard from './components/PointCard';
 import PointList from './components/PointList';
 import PlacementPanel, { allTargets, targetKey } from './components/PlacementPanel';
@@ -19,6 +19,7 @@ export default function App() {
   const [target, setTarget] = useState<PlaceTarget>({ kind: 'point', id: points[0].id });
   const [autoNext, setAutoNext] = useState(true);
   const [focus, setFocus] = useState<{ pos: Vec3 | null; key: number }>({ pos: null, key: 0 });
+  const [view, setView] = useState<{ name: ViewName | null; key: number }>({ name: null, key: 0 });
 
   const selected = points.find((p) => p.id === selectedId);
   const targets = useMemo(() => allTargets(points, landmarks), [points, landmarks]);
@@ -29,6 +30,14 @@ export default function App() {
     const p = points.find((x) => x.id === id);
     if (p?.position) setFocus((f) => ({ pos: p.position, key: f.key + 1 }));
   };
+
+  // カードの ‹ › と横スワイプで、前後の穴へ移る
+  const step = (d: 1 | -1) => {
+    const i = points.findIndex((p) => p.id === selectedId);
+    const next = points[i + d];
+    if (next) pick(next.id);
+  };
+  const selIndex = points.findIndex((p) => p.id === selectedId);
 
   const onPlace = (p: Vec3) => {
     const kind = target.kind === 'point' ? 'points' : 'landmarks';
@@ -79,8 +88,24 @@ export default function App() {
           onPlace={onPlace}
           focus={focus.pos}
           focusKey={focus.key}
+          view={view.name}
+          viewKey={view.key}
           showLandmarks={placing}
         />
+        <div className="view-buttons" role="group" aria-label="視点">
+          {(
+            [
+              ['front', '前'],
+              ['side', '横'],
+              ['back', '後'],
+              ['reset', '全体'],
+            ] as const
+          ).map(([name, label]) => (
+            <button key={name} onClick={() => setView((v) => ({ name, key: v.key + 1 }))}>
+              {label}
+            </button>
+          ))}
+        </div>
         <p className="credit">{CREDIT}</p>
         {tab === 'list' && <PointList points={points} selectedId={selectedId} onPick={pick} />}
       </main>
@@ -112,7 +137,15 @@ export default function App() {
             onResetAll={reset}
           />
         ) : (
-          selected && <PointCard point={selected} landmarks={landmarks} onClose={() => setSelectedId(null)} />
+          selected && (
+            <PointCard
+              point={selected}
+              landmarks={landmarks}
+              onClose={() => setSelectedId(null)}
+              onPrev={selIndex > 0 ? () => step(-1) : undefined}
+              onNext={selIndex < points.length - 1 ? () => step(1) : undefined}
+            />
+          )
         )}
       </footer>
     </div>

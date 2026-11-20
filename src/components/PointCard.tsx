@@ -1,8 +1,16 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { kotsudoById } from '../data';
 import type { Acupoint, Landmark } from '../types';
 
-export default function PointCard({ point, landmarks, onClose }: { point: Acupoint; landmarks: Landmark[]; onClose: () => void }) {
+interface Props {
+  point: Acupoint;
+  landmarks: Landmark[];
+  onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+}
+
+export default function PointCard({ point, landmarks, onClose, onPrev, onNext }: Props) {
   const seg = kotsudoById(point.kotsudo);
   const a = landmarks.find((l) => l.name === seg?.from)?.position;
   const b = landmarks.find((l) => l.name === seg?.to)?.position;
@@ -10,9 +18,26 @@ export default function PointCard({ point, landmarks, onClose }: { point: Acupoi
   const ety = point.etymology;
   // 3Dを広く見たいときは見出しだけに畳める
   const [folded, setFolded] = useState(false);
+  // 横スワイプで前後の穴へ（縦スクロールと区別するため、横に大きく動いたときだけ）
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touch.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touch.current;
+    touch.current = null;
+    if (!s) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0) onNext?.();
+    else onPrev?.();
+  };
 
   return (
-    <section className="card" aria-label={`${point.name}の詳細`}>
+    <section className="card" aria-label={`${point.name}の詳細`} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <header className="card-head">
         <div className="card-title" onClick={() => setFolded((v) => !v)} role="button" aria-expanded={!folded}>
           <div className="card-code">{point.id}</div>
@@ -22,6 +47,12 @@ export default function PointCard({ point, landmarks, onClose }: { point: Acupoi
           </h2>
         </div>
         <div className="card-actions">
+          <button className="icon-btn" onClick={onPrev} disabled={!onPrev} aria-label="前の穴">
+            ‹
+          </button>
+          <button className="icon-btn" onClick={onNext} disabled={!onNext} aria-label="次の穴">
+            ›
+          </button>
           <button className="icon-btn" onClick={() => setFolded((v) => !v)} aria-label={folded ? '開く' : '畳む'}>
             {folded ? '▴' : '▾'}
           </button>

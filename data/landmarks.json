@@ -1,7 +1,7 @@
 [
-  {"name": "前正中線", "side": "midline", "note": "前正中線上で、第1肋間と同じ高さの点（中府の高さ）", "position": [0, 1.2963, 0.1764], "positionStatus": "draft"},
-  {"name": "鎖骨中線（乳頭線）", "side": "R", "note": "右の鎖骨中線上で、第1肋間と同じ高さの点。前正中線の点から真横に取る", "position": [-0.1147, 1.2963, 0.1625], "positionStatus": "draft"},
+  {"name": "前正中線", "side": "midline", "note": "前正中線上で、第1肋間と同じ高さの点（中府の高さ）", "position": [0, 1.2974, 0.1757], "positionStatus": "draft"},
+  {"name": "鎖骨中線（乳頭線）", "side": "R", "note": "右の鎖骨中線（鎖骨の中点を通る垂線）上で、第1肋間と同じ高さの点。前正中線の点から真横に取る", "position": [-0.078, 1.2975, 0.1777], "positionStatus": "draft"},
   {"name": "腋窩横紋前端", "side": "R", "note": "右腋窩横紋の前端", "position": [-0.1769, 1.245, 0.1297], "positionStatus": "draft"},
-  {"name": "肘窩横紋", "side": "R", "note": "右肘窩横紋上で、上腕二頭筋腱の外側（尺沢の位置）", "position": [-0.222, 1.04, 0.1053], "positionStatus": "draft"},
+  {"name": "肘窩横紋", "side": "R", "note": "右肘窩横紋上で、上腕二頭筋腱の外側（尺沢の位置）", "position": [-0.222, 1.04, 0.1052], "positionStatus": "draft"},
   {"name": "手関節掌側横紋", "side": "R", "note": "右手関節掌側横紋上で、橈骨動脈の拍動部（太淵の位置）", "position": [-0.268, 0.815, 0.1379], "positionStatus": "draft"}
 ]
