@@ -37,7 +37,7 @@ export default function App() {
     setLayers(c.layers);
     setVisibleMeridians(c.meridians);
     setShowGhost(c.ghost);
-    if (c.layers.muscles || c.layers.arteries || c.layers.nerves) setSkinOpacity(0.3);
+    if (c.layers.arteries) setSkinOpacity(0.3);
     setTab(toList ? 'list' : '3d');
     setStarted(true);
   };

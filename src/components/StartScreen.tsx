@@ -9,12 +9,16 @@ export interface StartChoice {
 }
 
 const KEY = 'tsubotan.start.v1';
-const DEFAULT: StartChoice = { meridians: ['LU'], layers: { bones: false, muscles: false, arteries: false, nerves: false }, ghost: true };
+const DEFAULT: StartChoice = { meridians: ['LU'], layers: { bones: false, arteries: false }, ghost: true };
 
 export function loadStartChoice(): StartChoice {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...DEFAULT, ...JSON.parse(raw) };
+    if (raw) {
+      const v = JSON.parse(raw);
+      // 以前の版で保存した筋・神経の選択は捨てる
+      return { ...DEFAULT, ...v, layers: { bones: !!v.layers?.bones, arteries: !!v.layers?.arteries } };
+    }
   } catch {
     /* 保存できない環境では既定値 */
   }
@@ -55,7 +59,7 @@ export default function StartScreen({ initial, onStart }: { initial: StartChoice
       </section>
       <section>
         <h2>皮膚の下に表示するもの</h2>
-        <div className="start-grid four">
+        <div className="start-grid two">
           {LAYERS.map((l) => (
             <button key={l.name} className={c.layers[l.name] ? 'on' : ''} onClick={() => setC((v) => ({ ...v, layers: { ...v.layers, [l.name]: !v.layers[l.name] } }))} aria-pressed={c.layers[l.name]}>
               <i style={{ background: l.color }} />

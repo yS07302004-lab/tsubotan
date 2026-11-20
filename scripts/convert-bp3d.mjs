@@ -335,8 +335,7 @@ async function writeNails() {
   doc.getRoot().getAsset().copyright = CREDIT;
   const buf = doc.createBuffer();
   const scene = doc.createScene();
-  // 爪甲（nails）と、その周りの爪郭（nailFolds：少し暗い縁でくぼんで見せる）を別のメッシュにする
-  for (const [name, pk, ik] of [['nails', 'positions', 'indices'], ['nailFolds', 'rimPositions', 'rimIndices']]) {
+  for (const [name, pk, ik] of [['nails', 'positions', 'indices']]) {
     const pos = [];
     const idx = [];
     for (const n of nails) {
@@ -361,19 +360,8 @@ async function writeNails() {
       .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(nor).setBuffer(buf))
       .setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(buf));
     if (name === 'nails') {
-      // 爪甲の色：根元は白っぽい爪半月、なかほどは淡いピンク、先端は白い遊離縁
-      const stops = [[0, '#f4e6e1'], [0.16, '#f4e1dc'], [0.24, '#efc3bc'], [0.84, '#efc6bf'], [0.92, '#f8efea'], [1, '#fbf5f1']];
-      const lin = (h) => [1, 3, 5].map((i) => srgbToLinear(parseInt(h.slice(i, i + 2), 16) / 255));
-      const col = new Float32Array(pos.length);
-      const ts = nails.flatMap((n) => n.nailT);
-      ts.forEach((t, i) => {
-        let k = 0;
-        while (k < stops.length - 2 && t > stops[k + 1][0]) k++;
-        const [t0, c0] = stops[k], [t1, c1] = stops[k + 1];
-        const f = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
-        const a = lin(c0), b = lin(c1);
-        for (let j = 0; j < 3; j++) col[i * 3 + j] = a[j] + (b[j] - a[j]) * f;
-      });
+      // 爪甲の色は scripts/nails.py が頂点ごとに決めた sRGB（爪床・爪半月・遊離縁）
+      const col = new Float32Array(nails.flatMap((n) => n.colors.flatMap((c) => c.map(srgbToLinear))));
       prim.setAttribute('COLOR_0', doc.createAccessor().setType('VEC3').setArray(col).setBuffer(buf));
     }
     scene.addChild(doc.createNode(name).setMesh(doc.createMesh(name).addPrimitive(prim)));
@@ -391,9 +379,8 @@ async function writeNails() {
 }
 
 // 表示を切り替えるレイヤー（アプリで必要になったときだけ読み込む）
-const muscles = await writeGlb('muscles.glb', 'muscles', filesUnder('isa', 'FMA5022'), { clamp: 'soft', simplifyRatio: 0.35 }); // muscle organ（全身）
+// 筋・神経の層は作らない（筋は経穴の目印として structures.glb で必要な所だけ表示する。神経は BodyParts3D にほとんど無い）
 const arteries = await writeGlb('arteries.glb', 'arteries', filesUnder('isa', 'FMA50720'), { clamp: 'soft' }); // artery（全身）
-const nerves = await writeGlb('nerves.glb', 'nerves', filesUnder('isa', 'FMA65132'), { clamp: 'soft' }); // nerve（全部。BodyParts3D には主な神経だけ）
 const structures = await writeStructures();
 const nailsInfo = await writeNails();
 fs.writeFileSync(
@@ -404,7 +391,7 @@ fs.writeFileSync(
       license: 'CC BY-SA 2.1 JP',
       coordinate: 'meters, Y-up, anterior=+Z, body right=-X; from BodyParts3D (mm, Z-up, anterior=-Y) via (x,y,z)->(x,z,-y)*0.001',
       draco: USE_DRACO,
-      models: [skin, bones, muscles, arteries, nerves, structures, nailsInfo].filter(Boolean),
+      models: [skin, bones, arteries, structures, nailsInfo].filter(Boolean),
     },
     null,
     2,

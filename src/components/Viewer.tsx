@@ -49,40 +49,36 @@ function Nails({ opacity }: { opacity: number }) {
   const gltf = useGLTF(MODEL_URL.nails, MODEL_URL.draco);
   const geo = useMemo(() => {
     const get = (n: string) => (gltf.scene.getObjectByName(n) as THREE.Mesh | undefined)?.geometry;
-    return { nail: get('nails') ?? firstGeometry(gltf.scene), fold: get('nailFolds') };
+    return { nail: get('nails') ?? firstGeometry(gltf.scene) };
   }, [gltf]);
   const opaque = opacity >= 0.999;
   if (opacity <= 0.001) return null;
-  const mat = (color: string, offset: number, rough: number, vertexColors = false) => (
-    <meshStandardMaterial
-      key={opaque ? 'o' : 't'}
-      color={color}
-      vertexColors={vertexColors}
-      roughness={rough}
-      transparent={!opaque}
-      opacity={opacity}
-      depthWrite={opaque}
-      polygonOffset
-      polygonOffsetFactor={offset}
-      polygonOffsetUnits={offset}
-      side={THREE.DoubleSide}
-    />
-  );
+  const hasColor = !!geo.nail.getAttribute('color');
   return (
-    <group>
-      {geo.fold && (
-        <mesh geometry={geo.fold} renderOrder={ORDER.skinColor + 0.3} raycast={() => null}>
-          {mat('#d3a68f', -1, 0.9)}
-        </mesh>
-      )}
-      <mesh geometry={geo.nail} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
-        {mat(geo.nail.getAttribute('color') ? '#ffffff' : '#f3d6d0', -4, 0.3, !!geo.nail.getAttribute('color'))}
-      </mesh>
-    </group>
+    <mesh geometry={geo.nail} renderOrder={ORDER.skinColor + 0.5} raycast={() => null}>
+      {/* 爪らしいつや（クリアコート）。色は頂点色（爪床・爪半月・遊離縁） */}
+      <meshPhysicalMaterial
+        key={opaque ? 'o' : 't'}
+        color={hasColor ? '#ffffff' : '#f3d6d0'}
+        vertexColors={hasColor}
+        roughness={0.35}
+        clearcoat={0.8}
+        clearcoatRoughness={0.25}
+        emissive="#3a2622"
+        emissiveIntensity={0.25}
+        transparent={!opaque}
+        opacity={opacity}
+        depthWrite={opaque}
+        polygonOffset
+        polygonOffsetFactor={-4}
+        polygonOffsetUnits={-4}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   );
 }
 
-/** 骨・筋・動脈・神経の層。オンにしたときに初めて読み込む（骨は最初から） */
+/** 骨・動脈の層。オンにしたときに初めて読み込む（骨は最初から） */
 function Layer({ name }: { name: LayerName }) {
   const gltf = useGLTF(MODEL_URL[name], MODEL_URL.draco);
   const geo = useMemo(() => firstGeometry(gltf.scene), [gltf]);

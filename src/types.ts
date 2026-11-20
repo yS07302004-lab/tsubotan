@@ -63,11 +63,10 @@ export function findLandmark(list: Landmark[], name: string | undefined, side: S
 }
 
 /** 皮膚の下に表示する層（骨・筋・動脈・神経） */
-export type LayerName = 'bones' | 'muscles' | 'arteries' | 'nerves';
+// 筋は経穴を選んだときに目印として必要な所だけ色付けして出す（structures.glb）ので、層としては持たない
+export type LayerName = 'bones' | 'arteries';
 export const LAYERS: { name: LayerName; label: string; color: string }[] = [
   { name: 'bones', label: '骨', color: '#fbf7ec' },
-  { name: 'muscles', label: '筋', color: '#b8504a' },
   { name: 'arteries', label: '動脈', color: '#e8443a' },
-  { name: 'nerves', label: '神経', color: '#f2c230' },
 ];
 export type LayerState = Record<LayerName, boolean>;

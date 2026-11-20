@@ -42,7 +42,7 @@ def perp(v, a):
 TOE_HALF_MM = {'big toe': 7.0, 'second toe': 4.5, 'third toe': 4.2, 'fourth toe': 4.0, 'little toe': 3.2}
 FINGERS = ['thumb', 'index finger', 'middle finger', 'ring finger', 'little finger']
 TOES = ['big toe', 'second toe', 'third toe', 'fourth toe', 'little toe']
-HALF_WIDTH = {'thumb': 55, 'little finger': 50, 'big toe': 50, 'second toe': 45, 'third toe': 45, 'fourth toe': 42, 'little toe': 40}
+HALF_WIDTH = {'thumb': 52, 'index finger': 48, 'middle finger': 48, 'ring finger': 48, 'little finger': 45, 'big toe': 50, 'second toe': 45, 'third toe': 45, 'fourth toe': 42, 'little toe': 40}
 out = []
 for side in ['right', 'left']:
     lateral = np.array([-1.0, 0, 0]) if side == 'right' else np.array([1.0, 0, 0])
@@ -80,7 +80,9 @@ for side in ['right', 'left']:
         tip = ray(p1 + a * 0.03, -a)
         tip_t = 1.0 + (np.linalg.norm(tip - p1) / L if tip is not None else 0.15)
         w = np.radians(HALF_WIDTH.get(digit, 55))
-        t_prox, t_end = 0.52, 1.0 + (tip_t - 1.0) * 0.72   # 根元は末節骨の約半分、先端は指先のすぐ手前
+        # 根元（後爪郭）は末節骨の約半分。先端（遊離縁）は指先のすぐ手前まで
+        # （指先より先へ出すと、モデルの指先が丸く細いのでとげのように見えるため出さない）
+        t_prox, t_end = 0.52, tip_t - 0.0015 / L
 
         def make_grid(t_prox, t_end, wscale, lift, nu=18, nv=15):
             grid = np.zeros((nu, nv, 3))
@@ -122,19 +124,31 @@ for side in ['right', 'left']:
                     idx += [k, k + nv, k + 1, k + 1, k + nv, k + nv + 1]
             return idx
 
-        # 爪甲は皮膚とほぼ同じ高さ（0.3mm）。周りの爪郭は少し大きく、さらに低く（0.15mm）・暗めに描いて、くぼんで見せる
+        # 爪甲は皮膚とほぼ同じ高さ（0.3mm）に置く
         grid = make_grid(t_prox, t_end, 1.0, 0.0003)
-        # 爪郭は根元と両側だけ（先端＝遊離縁には無い）。爪より少し広く・根元側へ長く、先端は爪と同じ所まで
-        rim = make_grid(t_prox - 0.06, t_end - 0.01, 1.10, 0.00015)
         nu, nv = grid.shape[0], grid.shape[1]
+        # 色（sRGB 0〜1）：淡いピンクの爪床、根元に白い三日月の爪半月、先端に白い遊離縁。両端は少しだけ暗く（側爪郭の影）
+        def mix(a_, b_, f): return [a_[k] + (b_[k] - a_[k]) * f for k in range(3)]
+        def ss(x): x = min(1, max(0, x)); return x * x * (3 - 2 * x)
+        PINK, LUNULA, FREE = [0.95, 0.79, 0.75], [0.96, 0.87, 0.84], [0.97, 0.92, 0.89]
+        colors = []
+        for i in range(nu):
+            for j in range(nv):
+                q = -1 + 2 * j / (nv - 1); tt = i / (nu - 1)
+                c = PINK
+                lun = 0.11 * (1 - 0.7 * q * q)                     # 爪半月：中央がいちばん大きい、小さめの三日月
+                c = mix(c, LUNULA, (1 - ss((tt - lun) / 0.04)) * 0.8)
+                smile = 0.91 - 0.04 * (1 - q * q)                   # 遊離縁の境（スマイルライン）
+                c = mix(c, FREE, ss((tt - smile) / 0.025) * 0.85)
+                c = [v * (1 - 0.06 * q * q) for v in c]             # 両側は側爪郭の影で少し暗く
+                c = [v * (0.9 + 0.1 * ss(tt / 0.04)) for v in c]    # 根元のきわ（爪上皮）にうっすら影
+                colors.append([round(v, 3) for v in c])
         pos = grid.reshape(-1, 3)
         idx = tris(nu, nv)
         out.append({
             'side': 'R' if side == 'right' else 'L', 'digit': digit,
             'positions': np.round(pos, 5).tolist(), 'indices': idx,
-            'rimPositions': np.round(rim.reshape(-1, 3), 5).tolist(), 'rimIndices': tris(rim.shape[0], rim.shape[1]),
-            # 爪甲の各頂点の、根元(0)〜先端(1)の位置。爪半月・遊離縁の色分けに使う
-            'nailT': [round(i / (nu - 1), 3) for i in range(nu) for _ in range(nv)],
+            'colors': colors,
             'cornerLateral': np.round(grid[0, nv - 1], 5).tolist(),   # 爪甲の根元・外側（手は橈側、足は外側）の角
             'cornerMedial': np.round(grid[0, 0], 5).tolist(),
             'axis': np.round(a, 5).tolist(), 'lateralDir': np.round(s, 5).tolist(),
